@@ -499,17 +499,6 @@ export default function Tracker({ initialTracking = "" }) {
 >
   📦
 </div>
-.carrierDisplay {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.carrierDisplay img {
-  height: 30px;
-  width: auto;
-  object-fit: contain;
-}
                 {progressSteps.map((step, index) => (
                   <div
                     key={step.en}
@@ -629,7 +618,17 @@ export default function Tracker({ initialTracking = "" }) {
   font-weight: 700;
   transition: 0.2s;
 }
+.carrierDisplay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
+.carrierDisplay img {
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+}
 .carrierButton:hover {
   opacity: 0.9;
   transform: translateY(-2px);

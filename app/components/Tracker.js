@@ -660,7 +660,7 @@ return (
     <a href="https://www.erendirasboutique.com/return-policy" target="_blank" rel="noopener noreferrer">📄 Return Policy</a>
   </div>
 
-  <small>© 2026 Erendira&apos;s Boutique • Made with ♡ in California</small>
+  <small>© 2026 Erendira&apos;s Boutique</small>
 </footer>
  
       <style jsx>{`

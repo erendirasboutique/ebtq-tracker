@@ -48,6 +48,12 @@ const text = {
     footer: "Thank you for shopping with Erendira's Boutique.",
     notAvailable: "Not available",
     locationUnavailable: "Location not available",
+    latestUpdate: "Latest update",
+    viewOn: "View on",
+    copyNumber: "Copy tracking number",
+    copyLink: "Copy tracking link",
+    copiedNumber: "Tracking number copied!",
+    copiedLink: "Tracking link copied!",
   },
   es: {
     navPill: "Seguimiento de pedido",
@@ -80,6 +86,12 @@ const text = {
     footer: "Gracias por comprar en Erendira's Boutique.",
     notAvailable: "No disponible",
     locationUnavailable: "Ubicación no disponible",
+    latestUpdate: "Última actualización",
+    viewOn: "Ver en",
+    copyNumber: "Copiar número de rastreo",
+    copyLink: "Copiar enlace de rastreo",
+    copiedNumber: "Número de rastreo copiado!",
+    copiedLink: "Enlace de rastreo copiado!",
   }
 };
 
@@ -93,13 +105,13 @@ function stringifyTracking(data) {
 function carrierLogo(carrier) {
   switch ((carrier || "").toLowerCase()) {
     case "usps":
-      return "/public/usps.png";
+      return "/usps.png";
 
     case "ups":
-      return "/public/ups.png";
+      return "/ups.png";
 
     case "fedex":
-      return "/public/fedex.png";
+      return "/fedex.png";
 
     default:
       return null;
@@ -114,18 +126,6 @@ function guessCarrier(trackingNumber) {
 
   return "usps";
 }
-<div className="carrierDisplay">
-  {carrierLogo(carrierForButtons) && (
-    <img
-      src={carrierLogo(carrierForButtons)}
-      alt={carrierName(carrierForButtons, language)}
-    />
-  )}
-
-  <strong>
-    {carrierName(carrierForButtons, language)}
-  </strong>
-</div>
 function carrierName(value, language) {
   const match = carriers.find((c) => c.value === value);
   if (!match) return value?.toUpperCase() || (language === "es" ? "Transportista" : "Carrier");
@@ -233,19 +233,31 @@ function carrierTrackingUrl(carrier, trackingNumber) {
 
   switch ((carrier || "").toLowerCase()) {
     case "usps":
-      return `https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=${trackingNumber}`;
+      return `https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=${encodeURIComponent(trackingNumber)}`;
 
     case "ups":
-      return `https://www.ups.com/track?tracknum=${trackingNumber}`;
+      return `https://www.ups.com/track?tracknum=${encodeURIComponent(trackingNumber)}`;
 
     case "fedex":
-      return `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
+      return `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(trackingNumber)}`;
 
     default:
       return null;
   }
   
 }
+
+async function copyToClipboard(value) {
+  if (!value || typeof navigator === "undefined") return false;
+
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function Confetti({ show }) {
   if (!show) return null;
 
@@ -274,6 +286,7 @@ export default function Tracker({ initialTracking = "" }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState("");
   const hasAutoTracked = useRef(false);
 
   const t = text[language];
@@ -369,6 +382,26 @@ export default function Tracker({ initialTracking = "" }) {
 
     setLoading(false);
   }
+
+  async function handleCopyTrackingNumber() {
+    const copied = await copyToClipboard(trackingForButtons);
+
+    if (copied) {
+      setCopiedMessage(t.copiedNumber);
+      setTimeout(() => setCopiedMessage(""), 2500);
+    }
+  }
+
+  async function handleCopyTrackingLink() {
+    const link = `${window.location.origin}/${encodeURIComponent(trackingForButtons)}`;
+    const copied = await copyToClipboard(link);
+
+    if (copied) {
+      setCopiedMessage(t.copiedLink);
+      setTimeout(() => setCopiedMessage(""), 2500);
+    }
+  }
+
 const history = result?.tracking_history || [];
 const reversedHistory = [...history].reverse();
 const progressIndex = result ? getProgressIndex(result) : 0;
@@ -376,9 +409,11 @@ const progressPercent = result ? Math.round((progressIndex / 3) * 100) : 0;
 const trackingForButtons = result?.tracking_number || trackingNumber;
 const carrierForButtons = result?.carrier || selectedCarrier;
 const officialCarrierUrl = carrierTrackingUrl(carrierForButtons, trackingForButtons);
+const logoUrl = carrierLogo(carrierForButtons);
 
 return (
   <main className="page">
+      <Confetti show={showConfetti} />
 
       <div className="decorFlower flowerOne">✿</div>
       <div className="decorFlower flowerTwo">✿</div>
@@ -521,26 +556,16 @@ return (
             </div>
 
             <div className="summaryGrid">
-              {carrierTrackingUrl(result?.carrier || selectedCarrier, trackingNumber) && (
-  <a
-    className="carrierButton"
-    href={carrierTrackingUrl(
-      result?.carrier || selectedCarrier,
-      trackingNumber
-    )}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    View on {carrierName(result?.carrier || selectedCarrier, language)} →
-  </a>
-)}
               <div>
                 <span>{t.summaryCarrier}</span>
-                <strong>{carrierName(result.carrier || selectedCarrier, language)}</strong>
+                <div className="carrierDisplay">
+                  {logoUrl && <img src={logoUrl} alt={carrierName(carrierForButtons, language)} />}
+                  <strong>{carrierName(carrierForButtons, language)}</strong>
+                </div>
               </div>
               <div>
                 <span>{t.summaryTracking}</span>
-                <strong>{result.tracking_number || trackingNumber}</strong>
+                <strong>{trackingForButtons}</strong>
               </div>
               <div>
                 <span>{t.eta}</span>
@@ -551,6 +576,29 @@ return (
                 <strong>{formatDate(result.object_updated, language)}</strong>
               </div>
             </div>
+
+            <div className="trackingActions">
+              {officialCarrierUrl && (
+                <a
+                  className="carrierButton"
+                  href={officialCarrierUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.viewOn} {carrierName(carrierForButtons, language)} →
+                </a>
+              )}
+
+              <button type="button" className="secondaryButton" onClick={handleCopyTrackingNumber}>
+                📋 {t.copyNumber}
+              </button>
+
+              <button type="button" className="secondaryButton" onClick={handleCopyTrackingLink}>
+                🔗 {t.copyLink}
+              </button>
+            </div>
+
+            {copiedMessage && <p className="copiedMessage">{copiedMessage}</p>}
 
             <div className="sectionTitle">
               <h3>{t.timeline}</h3>
@@ -564,10 +612,11 @@ return (
               </div>
             ) : (
               <div className="timeline">
-                {[...history].reverse().map((event, index) => (
-                 <div className={`timelineItem ${index === 0 ? "latestEvent" : ""}`} key={event.object_id || index}>
+                {reversedHistory.map((event, index) => (
+                  <div className={`timelineItem ${index === 0 ? "latestEvent" : ""}`} key={event.object_id || index}>
                     <div className="dot" />
                     <div className="timelineContent">
+                      {index === 0 && <span className="latestBadge">{t.latestUpdate}</span>}
                       <strong>{translateStatus(event.status_details || event.status || "Shipment update", language)}</strong>
                       <p>{formatDate(event.status_date || event.object_created, language)}</p>
                       <p>
@@ -598,55 +647,82 @@ return (
           overflow-x: hidden;
         }
 .latestEvent .timelineContent {
-  border: 2px solid var(--green);
-  box-shadow: 0 12px 28px rgba(111, 153, 64, 0.16);
-}
-.packageIcon {
-  position: absolute;
-  top: -34px;
-  transform: translateX(-50%);
-  transition: left 0.8s ease;
-  font-size: 26px;
-  z-index: 10;
-}
+          border: 2px solid var(--green);
+          box-shadow: 0 12px 28px rgba(111, 153, 64, 0.16);
+        }
 
-.carrierButton {
-  display: inline-block;
-  margin: 24px 0;
-  background: var(--green);
-  color: white;
-  padding: 14px 22px;
-  border-radius: 16px;
-  text-decoration: none;
-  font-weight: 700;
-  transition: 0.2s;
-}
-.carrierDisplay {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+        .latestBadge {
+          display: inline-block;
+          margin-bottom: 8px;
+          background: rgba(111, 153, 64, 0.14);
+          color: var(--green-dark);
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 900;
+        }
 
-.carrierDisplay img {
-  height: 30px;
-  width: auto;
-  object-fit: contain;
-}
-.carrierButton:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
-.latestEvent .timelineContent::before {
-  content: "Latest update";
-  display: inline-block;
-  margin-bottom: 8px;
-  background: rgba(111, 153, 64, 0.14);
-  color: var(--green-dark);
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-}
+        .packageIcon {
+          position: absolute;
+          top: -34px;
+          transform: translateX(-50%);
+          transition: left 0.8s ease;
+          font-size: 26px;
+          z-index: 10;
+        }
+
+        .carrierDisplay {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .carrierDisplay img {
+          height: 30px;
+          width: auto;
+          object-fit: contain;
+        }
+
+        .trackingActions {
+          display: flex;
+          gap: 12px;
+          margin: 20px 0 26px;
+          flex-wrap: wrap;
+        }
+
+        .carrierButton,
+        .secondaryButton {
+          width: auto;
+          display: inline-block;
+          margin: 0;
+          background: var(--green);
+          color: white;
+          padding: 13px 18px;
+          border-radius: 16px;
+          text-decoration: none;
+          font-weight: 900;
+          transition: 0.2s;
+          border: 2px solid var(--green);
+          box-shadow: 0 10px 22px rgba(111, 153, 64, 0.18);
+        }
+
+        .secondaryButton {
+          background: white;
+          color: var(--green-dark);
+        }
+
+        .carrierButton:hover,
+        .secondaryButton:hover {
+          opacity: 0.94;
+          transform: translateY(-2px);
+        }
+
+        .copiedMessage {
+          margin: -10px 0 24px;
+          color: var(--green-dark);
+          font-weight: 900;
+        }
+
         .nav {
           max-width: 1120px;
           margin: 0 auto;
@@ -661,14 +737,6 @@ return (
           height: auto;
           display: block;
         }
-.packageIcon {
-  position: absolute;
-  top: -34px;
-  transform: translateX(-50%);
-  transition: left 0.8s ease;
-  font-size: 26px;
-  z-index: 10;
-}
         .navActions {
           display: flex;
           align-items: center;
@@ -700,15 +768,7 @@ return (
           cursor: pointer;
         }
 
-        .confettiTestButton {
-          width: auto;
-          margin: 0;
-          padding: 10px 14px;
-          border-radius: 999px;
-          font-size: 13px;
-          box-shadow: 0 8px 18px rgba(111, 153, 64, 0.16);
-        }
-
+        
         .navPill {
           border: 1px solid var(--border);
           background: rgba(255, 255, 255, 0.55);
@@ -921,7 +981,7 @@ return (
           height: 10px;
           background: rgba(111, 153, 64, 0.18);
           border-radius: 999px;
-          margin: 26px 10px 20px;
+          margin: 30px 10px 24px;
         }
 
         .progressFill {

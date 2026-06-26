@@ -601,6 +601,15 @@ return (
   border: 2px solid var(--green);
   box-shadow: 0 12px 28px rgba(111, 153, 64, 0.16);
 }
+.packageIcon {
+  position: absolute;
+  top: -34px;
+  transform: translateX(-50%);
+  transition: left 0.8s ease;
+  font-size: 26px;
+  z-index: 10;
+}
+
 .carrierButton {
   display: inline-block;
   margin: 24px 0;
@@ -637,14 +646,6 @@ return (
   border-radius: 999px;
   font-size: 11px;
   font-weight: 900;
-}
-.packageIcon {
-  position: absolute;
-  top: -34px;
-  transform: translateX(-50%);
-  transition: left 0.8s ease;
-  font-size: 26px;
-  z-index: 10;
 }
         .nav {
           max-width: 1120px;

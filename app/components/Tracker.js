@@ -473,7 +473,7 @@ export default function Tracker({ initialTracking = "" }) {
             ) : (
               <div className="timeline">
                 {[...history].reverse().map((event, index) => (
-                  <div className="timelineItem" key={event.object_id || index}>
+                 <div className={`timelineItem ${index === 0 ? "latestEvent" : ""}`} key={event.object_id || index}>
                     <div className="dot" />
                     <div className="timelineContent">
                       <strong>{translateStatus(event.status_details || event.status || "Shipment update", language)}</strong>

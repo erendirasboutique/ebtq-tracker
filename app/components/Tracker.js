@@ -90,7 +90,21 @@ function stringifyTracking(data) {
     return "";
   }
 }
+function carrierLogo(carrier) {
+  switch ((carrier || "").toLowerCase()) {
+    case "usps":
+      return "/public/usps.png";
 
+    case "ups":
+      return "/public/ups.png";
+
+    case "fedex":
+      return "/public/fedex.png";
+
+    default:
+      return null;
+  }
+}
 function guessCarrier(trackingNumber) {
   const n = String(trackingNumber || "").trim().toUpperCase();
 
@@ -100,7 +114,18 @@ function guessCarrier(trackingNumber) {
 
   return "usps";
 }
+<div className="carrierDisplay">
+  {carrierLogo(carrierForButtons) && (
+    <img
+      src={carrierLogo(carrierForButtons)}
+      alt={carrierName(carrierForButtons, language)}
+    />
+  )}
 
+  <strong>
+    {carrierName(carrierForButtons, language)}
+  </strong>
+</div>
 function carrierName(value, language) {
   const match = carriers.find((c) => c.value === value);
   if (!match) return value?.toUpperCase() || (language === "es" ? "Transportista" : "Carrier");
@@ -474,6 +499,17 @@ export default function Tracker({ initialTracking = "" }) {
 >
   📦
 </div>
+.carrierDisplay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carrierDisplay img {
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+}
                 {progressSteps.map((step, index) => (
                   <div
                     key={step.en}

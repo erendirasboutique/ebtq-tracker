@@ -1,21 +1,21 @@
 "use client";
-
+ 
 import { useEffect, useMemo, useRef, useState } from "react";
-
+ 
 const carriers = [
   { label: "Auto detect", esLabel: "Detectar automáticamente", value: "auto" },
   { label: "USPS", esLabel: "USPS", value: "usps" },
   { label: "UPS", esLabel: "UPS", value: "ups" },
   { label: "FedEx", esLabel: "FedEx", value: "fedex" }
 ];
-
+ 
 const progressSteps = [
   { en: "Order shipped", es: "Pedido enviado" },
   { en: "In transit", es: "En tránsito" },
   { en: "Out for delivery", es: "En reparto" },
   { en: "Delivered!", es: "Entregado!" }
 ];
-
+ 
 const text = {
   en: {
     navPill: "Order tracking",
@@ -94,7 +94,7 @@ const text = {
     copiedLink: "Enlace de rastreo copiado!",
   }
 };
-
+ 
 function stringifyTracking(data) {
   try {
     return JSON.stringify(data || {}).toLowerCase();
@@ -106,24 +106,24 @@ function carrierLogo(carrier) {
   switch ((carrier || "").toLowerCase()) {
     case "usps":
       return "/usps.png";
-
+ 
     case "ups":
       return "/ups.png";
-
+ 
     case "fedex":
       return "/fedex.png";
-
+ 
     default:
       return null;
   }
 }
 function guessCarrier(trackingNumber) {
   const n = String(trackingNumber || "").trim().toUpperCase();
-
+ 
   if (/^1Z[A-Z0-9]{16}$/.test(n)) return "ups";
   if (/^(94|93|92|95|96)\d{18,26}$/.test(n)) return "usps";
   if (/^\d{12}$/.test(n) || /^\d{15}$/.test(n) || /^\d{20}$/.test(n) || /^\d{22}$/.test(n)) return "fedex";
-
+ 
   return "usps";
 }
 function carrierName(value, language) {
@@ -131,12 +131,12 @@ function carrierName(value, language) {
   if (!match) return value?.toUpperCase() || (language === "es" ? "Transportista" : "Carrier");
   return language === "es" ? match.esLabel : match.label;
 }
-
+ 
 function translateStatus(status, language) {
   if (language !== "es") return status;
-
+ 
   const s = String(status || "").toLowerCase();
-
+ 
   if (s.includes("delivered")) return "Entregado";
   if (s.includes("out_for_delivery") || s.includes("out for delivery")) return "En reparto";
   if (s.includes("transit") || s.includes("in_transit")) return "En tránsito";
@@ -146,80 +146,93 @@ function translateStatus(status, language) {
   if (s.includes("arrived")) return "Llegó a una instalación";
   if (s.includes("departed")) return "Salió de una instalación";
   if (s.includes("available for pickup")) return "Disponible para recoger";
-
+ 
   return status;
 }
-
+ 
 function getStatusText(data, language) {
   const raw =
     data?.tracking_status?.status_details ||
     data?.tracking_status?.status ||
     data?.status ||
     (language === "es" ? "Sin estado todavía" : "No status yet");
-
+ 
   return translateStatus(raw, language);
 }
-
+ 
 function getStatusBadge(data, language) {
   const all = stringifyTracking(data);
-
+ 
   if (all.includes("delivered")) return language === "es" ? "Entregado" : "Delivered";
   if (all.includes("out_for_delivery") || all.includes("out for delivery")) return language === "es" ? "En reparto" : "Out for delivery";
   if (all.includes("transit") || all.includes("in_transit")) return language === "es" ? "En tránsito" : "In transit";
   if (all.includes("exception") || all.includes("failure") || all.includes("failed")) return language === "es" ? "Incidencia" : "Needs attention";
   if (all.includes("pre_transit") || all.includes("pre-transit") || all.includes("label")) return language === "es" ? "Etiqueta creada" : "Pre-shipment";
-
+ 
   return language === "es" ? "Rastreando" : "Tracking";
 }
-
+ 
 function getProgressIndex(data) {
-  const all = stringifyTracking(data);
-
+  const status =
+    data?.tracking_status?.status ||
+    data?.tracking_status?.status_details ||
+    data?.status ||
+    "";
+ 
+  const s = String(status).toLowerCase();
+ 
   if (
-    all.includes("delivered") ||
-    all.includes("deliver") ||
-    all.includes("delivery complete")
+    s === "delivered" ||
+    s.includes("has been delivered") ||
+    s.includes("was delivered") ||
+    s.includes("delivered to")
   ) {
     return 3;
   }
-
+ 
   if (
-    all.includes("out_for_delivery") ||
-    all.includes("out for delivery") ||
-    all.includes("available for pickup")
+    s === "out_for_delivery" ||
+    s.includes("out for delivery") ||
+    s.includes("available for pickup")
   ) {
     return 2;
   }
-
+ 
   if (
-    all.includes("transit") ||
-    all.includes("in_transit") ||
-    all.includes("departed") ||
-    all.includes("arrived") ||
-    all.includes("accepted")
+    s.includes("transit") ||
+    s.includes("in_transit") ||
+    s.includes("departed") ||
+    s.includes("arrived") ||
+    s.includes("accepted")
   ) {
     return 1;
   }
-
+ 
   return 0;
 }
-
+ 
 function isDelivered(data) {
-  const all = stringifyTracking(data);
-
+  const status =
+    data?.tracking_status?.status ||
+    data?.tracking_status?.status_details ||
+    data?.status ||
+    "";
+ 
+  const s = String(status).toLowerCase();
+ 
   return (
-    all.includes("delivered") ||
-    all.includes("deliver") ||
-    all.includes("delivery complete") ||
-    getProgressIndex(data) === 3
+    s === "delivered" ||
+    s.includes("has been delivered") ||
+    s.includes("was delivered") ||
+    s.includes("delivered to")
   );
 }
 function formatDate(value, language) {
   if (!value) return text[language].notAvailable;
-
+ 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-
+ 
   return date.toLocaleString(language === "es" ? "es-US" : "en-US", {
     month: "short",
     day: "numeric",
@@ -230,26 +243,26 @@ function formatDate(value, language) {
 }
 function carrierTrackingUrl(carrier, trackingNumber) {
   if (!trackingNumber) return null;
-
+ 
   switch ((carrier || "").toLowerCase()) {
     case "usps":
       return `https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=${encodeURIComponent(trackingNumber)}`;
-
+ 
     case "ups":
       return `https://www.ups.com/track?tracknum=${encodeURIComponent(trackingNumber)}`;
-
+ 
     case "fedex":
       return `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(trackingNumber)}`;
-
+ 
     default:
       return null;
   }
   
 }
-
+ 
 async function copyToClipboard(value) {
   if (!value || typeof navigator === "undefined") return false;
-
+ 
   try {
     await navigator.clipboard.writeText(value);
     return true;
@@ -257,10 +270,10 @@ async function copyToClipboard(value) {
     return false;
   }
 }
-
+ 
 function Confetti({ show }) {
   if (!show) return null;
-
+ 
   return (
     <div className="confettiLayer" aria-hidden="true">
       {Array.from({ length: 100 }, (_, index) => (
@@ -277,7 +290,7 @@ function Confetti({ show }) {
     </div>
   );
 }
-
+ 
 export default function Tracker({ initialTracking = "" }) {
   const [language, setLanguage] = useState("en");
   const [trackingNumber, setTrackingNumber] = useState(initialTracking || "");
@@ -288,75 +301,75 @@ export default function Tracker({ initialTracking = "" }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState("");
   const hasAutoTracked = useRef(false);
-
+ 
   const t = text[language];
-
+ 
   const selectedCarrier = useMemo(() => {
     if (carrier !== "auto") return carrier;
     if (!trackingNumber.trim()) return "auto";
     return guessCarrier(trackingNumber);
   }, [carrier, trackingNumber]);
-
+ 
   useEffect(() => {
     const saved = window.localStorage.getItem("erendirasLanguage");
-
+ 
     if (saved === "en" || saved === "es") {
       setLanguage(saved);
       document.documentElement.lang = saved;
       return;
     }
-
+ 
     const browserLanguage = navigator.language?.toLowerCase() || "";
     if (browserLanguage.startsWith("es")) {
       setLanguage("es");
       document.documentElement.lang = "es";
     }
   }, []);
-
+ 
   useEffect(() => {
     document.documentElement.lang = language;
     window.localStorage.setItem("erendirasLanguage", language);
   }, [language]);
-
+ 
   useEffect(() => {
     if (hasAutoTracked.current) return;
-
+ 
     let trackingFromUrl = String(initialTracking || "").trim();
-
+ 
     if (!trackingFromUrl && typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
       trackingFromUrl = String(searchParams.get("tracking") || "").trim();
     }
-
+ 
     if (!trackingFromUrl) return;
-
+ 
     hasAutoTracked.current = true;
     setTrackingNumber(trackingFromUrl);
     setCarrier("auto");
     trackPackage(trackingFromUrl, "auto");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialTracking]);
-
+ 
   useEffect(() => {
     if (!result) return;
-
+ 
     if (isDelivered(result)) {
       setShowConfetti(true);
       const timer = setTimeout(() => setShowConfetti(false), 8000);
       return () => clearTimeout(timer);
     }
   }, [result]);
-
+ 
   async function trackPackage(numberToTrack = trackingNumber, carrierToUse = carrier) {
     const cleanNumber = String(numberToTrack || "").trim();
-
+ 
     if (!cleanNumber) return;
-
+ 
     setLoading(true);
     setResult(null);
     setError("");
     setShowConfetti(false);
-
+ 
     try {
       const response = await fetch("/api/track", {
         method: "POST",
@@ -368,9 +381,9 @@ export default function Tracker({ initialTracking = "" }) {
           trackingNumber: cleanNumber
         })
       });
-
+ 
       const data = await response.json();
-
+ 
       if (!response.ok) {
         setError(data?.message || data?.detail || data?.error || "Tracking failed.");
       } else {
@@ -379,29 +392,29 @@ export default function Tracker({ initialTracking = "" }) {
     } catch (err) {
       setError(err.message || "Request failed.");
     }
-
+ 
     setLoading(false);
   }
-
+ 
   async function handleCopyTrackingNumber() {
     const copied = await copyToClipboard(trackingForButtons);
-
+ 
     if (copied) {
       setCopiedMessage(t.copiedNumber);
       setTimeout(() => setCopiedMessage(""), 2500);
     }
   }
-
+ 
   async function handleCopyTrackingLink() {
     const link = `${window.location.origin}/${encodeURIComponent(trackingForButtons)}`;
     const copied = await copyToClipboard(link);
-
+ 
     if (copied) {
       setCopiedMessage(t.copiedLink);
       setTimeout(() => setCopiedMessage(""), 2500);
     }
   }
-
+ 
 const history = result?.tracking_history || [];
 const reversedHistory = [...history].reverse();
 const progressIndex = result ? getProgressIndex(result) : 0;
@@ -410,11 +423,11 @@ const trackingForButtons = result?.tracking_number || trackingNumber;
 const carrierForButtons = result?.carrier || selectedCarrier;
 const officialCarrierUrl = carrierTrackingUrl(carrierForButtons, trackingForButtons);
 const logoUrl = carrierLogo(carrierForButtons);
-
+ 
 return (
   <main className="page">
       <Confetti show={showConfetti} />
-
+ 
       <div className="decorFlower flowerOne">✿</div>
       <div className="decorFlower flowerTwo">✿</div>
       <div className="decorFlower flowerThree">✿</div>
@@ -422,12 +435,12 @@ return (
       <div className="decorFlower flowerFive">✿</div>
       <div className="decorFlower flowerSix">✿</div>
       <div className="decorFlower flowerSeven">✿</div>
-
+ 
       <header className="nav">
         <a className="brand" href="/">
           <img src="/logo.png" alt="Erendira's Boutique" />
         </a>
-
+ 
         <div className="navActions">
           <label className="languageToggle">
             <span>🌐</span>
@@ -436,24 +449,24 @@ return (
               <option value="es">Español</option>
             </select>
           </label>
-
+ 
           <span className="navPill">{t.navPill}</span>
         </div>
       </header>
-
+ 
       <section className="hero">
         <div className="heroText">
           <p className="eyebrow">{t.eyebrow}</p>
           <h1>{t.heroTitle}</h1>
           <p className="subtext">{t.heroText}</p>
-
+ 
           <div className="trustRow">
             <span>USPS</span>
             <span>UPS</span>
             <span>FedEx</span>
           </div>
         </div>
-
+ 
         <div className="trackerCard">
           <div className="cardHeader">
             <div>
@@ -462,7 +475,7 @@ return (
             </div>
             <span className="flower">✿</span>
           </div>
-
+ 
           <label>{t.carrier}</label>
           <select value={carrier} onChange={(event) => setCarrier(event.target.value)}>
             {carriers.map((item) => (
@@ -471,27 +484,27 @@ return (
               </option>
             ))}
           </select>
-
+ 
           <label>{t.trackingNumber}</label>
           <input
             value={trackingNumber}
             onChange={(event) => setTrackingNumber(event.target.value)}
             placeholder={t.placeholder}
           />
-
+ 
           <p className="helper">
             {t.selectedCarrier}: <strong>{carrierName(selectedCarrier, language)}</strong>
           </p>
-
+ 
           <button onClick={() => trackPackage()} disabled={!trackingNumber.trim() || loading}>
             {loading ? t.loading : t.button}
           </button>
-
+ 
           <p className="note">{t.note}</p>
           <p className="note directNote">{t.directNote}</p>
         </div>
       </section>
-
+ 
       <section className="results">
         {error && (
           <div className="messageCard errorBox">
@@ -503,7 +516,7 @@ return (
             </div>
           </div>
         )}
-
+ 
         {result && (
           <div className="resultCard">
             <div className="resultTop">
@@ -513,13 +526,13 @@ return (
               </div>
               <span className="badge">{getStatusBadge(result, language)}</span>
             </div>
-
+ 
             <div className="deliveryProgress">
               <div className="progressHeader">
                 <h3>{t.deliveryProgress}</h3>
                 <p>{progressPercent}% {t.complete}</p>
               </div>
-
+ 
               <div className="progressTrack">
                 <div className="progressFill" style={{ width: `${progressPercent}%` }} />
 <div
@@ -538,7 +551,7 @@ return (
                   </div>
                 ))}
               </div>
-
+ 
               <div className="progressLabels">
                 {progressSteps.map((step, index) => (
                   <span key={step.en} className={index <= progressIndex ? "activeLabel" : ""}>
@@ -546,7 +559,7 @@ return (
                   </span>
                 ))}
               </div>
-
+ 
               {isDelivered(result) && (
                 <div className="deliveredMessage">
                   <span>✿</span>
@@ -554,7 +567,7 @@ return (
                 </div>
               )}
             </div>
-
+ 
             <div className="summaryGrid">
               <div>
                 <span>{t.summaryCarrier}</span>
@@ -576,7 +589,7 @@ return (
                 <strong>{formatDate(result.object_updated, language)}</strong>
               </div>
             </div>
-
+ 
             <div className="trackingActions">
               {officialCarrierUrl && (
                 <a
@@ -588,23 +601,23 @@ return (
                   {t.viewOn} {carrierName(carrierForButtons, language)} →
                 </a>
               )}
-
+ 
               <button type="button" className="secondaryButton" onClick={handleCopyTrackingNumber}>
                 📋 {t.copyNumber}
               </button>
-
+ 
               <button type="button" className="secondaryButton" onClick={handleCopyTrackingLink}>
                 🔗 {t.copyLink}
               </button>
             </div>
-
+ 
             {copiedMessage && <p className="copiedMessage">{copiedMessage}</p>}
-
+ 
             <div className="sectionTitle">
               <h3>{t.timeline}</h3>
               <p>{t.timelineSub}</p>
             </div>
-
+ 
             {history.length === 0 ? (
               <div className="emptyTimeline">
                 <span className="flower">✿</span>
@@ -632,12 +645,12 @@ return (
           </div>
         )}
       </section>
-
+ 
       <footer>
         <img src="/logo.png" alt="Erendira's Boutique" />
         <p>{t.footer}</p>
       </footer>
-
+ 
       <style jsx>{`
         .page {
           min-height: 100vh;
@@ -650,7 +663,7 @@ return (
           border: 2px solid var(--green);
           box-shadow: 0 12px 28px rgba(111, 153, 64, 0.16);
         }
-
+ 
         .latestBadge {
           display: inline-block;
           margin-bottom: 8px;
@@ -661,7 +674,7 @@ return (
           font-size: 11px;
           font-weight: 900;
         }
-
+ 
         .packageIcon {
           position: absolute;
           top: -34px;
@@ -670,26 +683,26 @@ return (
           font-size: 26px;
           z-index: 10;
         }
-
+ 
         .carrierDisplay {
           display: flex;
           align-items: center;
           gap: 10px;
         }
-
+ 
         .carrierDisplay img {
           height: 30px;
           width: auto;
           object-fit: contain;
         }
-
+ 
         .trackingActions {
           display: flex;
           gap: 12px;
           margin: 20px 0 26px;
           flex-wrap: wrap;
         }
-
+ 
         .carrierButton,
         .secondaryButton {
           width: auto;
@@ -705,24 +718,24 @@ return (
           border: 2px solid var(--green);
           box-shadow: 0 10px 22px rgba(111, 153, 64, 0.18);
         }
-
+ 
         .secondaryButton {
           background: white;
           color: var(--green-dark);
         }
-
+ 
         .carrierButton:hover,
         .secondaryButton:hover {
           opacity: 0.94;
           transform: translateY(-2px);
         }
-
+ 
         .copiedMessage {
           margin: -10px 0 24px;
           color: var(--green-dark);
           font-weight: 900;
         }
-
+ 
         .nav {
           max-width: 1120px;
           margin: 0 auto;
@@ -731,7 +744,7 @@ return (
           align-items: center;
           gap: 18px;
         }
-
+ 
         .brand img {
           width: min(310px, 62vw);
           height: auto;
@@ -743,7 +756,7 @@ return (
           gap: 12px;
           flex-wrap: wrap;
         }
-
+ 
         .languageToggle {
           display: flex;
           align-items: center;
@@ -755,7 +768,7 @@ return (
           box-shadow: 0 8px 20px rgba(111, 153, 64, 0.08);
           margin: 0;
         }
-
+ 
         .languageToggle select {
           width: auto;
           border: 0;
@@ -767,7 +780,7 @@ return (
           padding: 4px 2px;
           cursor: pointer;
         }
-
+ 
         
         .navPill {
           border: 1px solid var(--border);
@@ -778,7 +791,7 @@ return (
           font-weight: 800;
           box-shadow: 0 8px 20px rgba(111, 153, 64, 0.08);
         }
-
+ 
         .hero {
           max-width: 1120px;
           margin: 54px auto 28px;
@@ -787,7 +800,7 @@ return (
           gap: 44px;
           align-items: center;
         }
-
+ 
         .eyebrow {
           margin: 0;
           color: var(--green);
@@ -796,35 +809,35 @@ return (
           font-size: 12px;
           font-weight: 900;
         }
-
+ 
         h1,
         h2,
         h3 {
           font-family: var(--font-heading), Georgia, serif;
           font-weight: 400;
         }
-
+ 
         h1 {
           font-size: clamp(46px, 7vw, 78px);
           line-height: 1.02;
           margin: 12px 0 18px;
           color: var(--text);
         }
-
+ 
         .subtext {
           font-size: 19px;
           line-height: 1.7;
           color: var(--brown);
           max-width: 610px;
         }
-
+ 
         .trustRow {
           margin-top: 30px;
           display: flex;
           gap: 12px;
           flex-wrap: wrap;
         }
-
+ 
         .trustRow span {
           background: rgba(255, 255, 255, 0.65);
           border: 1px solid var(--border);
@@ -833,7 +846,7 @@ return (
           padding: 10px 14px;
           font-weight: 800;
         }
-
+ 
         .trackerCard,
         .resultCard,
         .messageCard {
@@ -844,7 +857,7 @@ return (
           padding: 28px;
           box-shadow: 0 26px 70px rgba(111, 153, 64, 0.16);
         }
-
+ 
         .cardHeader,
         .resultTop,
         .messageCard {
@@ -853,7 +866,7 @@ return (
           align-items: flex-start;
           gap: 18px;
         }
-
+ 
         .trackerCard h2,
         .resultCard h2,
         .messageCard h2 {
@@ -861,20 +874,20 @@ return (
           margin: 6px 0 0;
           line-height: 1.08;
         }
-
+ 
         .flower {
           color: var(--purple);
           font-size: 30px;
           line-height: 1;
         }
-
+ 
         label {
           display: block;
           margin: 18px 0 8px;
           font-weight: 900;
           color: var(--text);
         }
-
+ 
         input,
         select {
           width: 100%;
@@ -885,13 +898,13 @@ return (
           background: #fffdfb;
           color: var(--text);
         }
-
+ 
         input:focus,
         select:focus {
           outline: 3px solid rgba(111, 153, 64, 0.22);
           border-color: var(--green);
         }
-
+ 
         .helper,
         .note,
         .small {
@@ -899,12 +912,12 @@ return (
           font-size: 13px;
           line-height: 1.5;
         }
-
+ 
         .directNote {
           opacity: 0.75;
           margin-top: 4px;
         }
-
+ 
         button {
           width: 100%;
           margin-top: 16px;
@@ -919,27 +932,27 @@ return (
           box-shadow: 0 14px 28px rgba(111, 153, 64, 0.28);
           transition: transform 0.15s ease, filter 0.15s ease;
         }
-
+ 
         button:hover {
           transform: translateY(-1px);
           filter: brightness(0.96);
         }
-
+ 
         button:disabled {
           opacity: 0.55;
           cursor: not-allowed;
           transform: none;
         }
-
+ 
         .results {
           max-width: 1120px;
           margin: 0 auto;
         }
-
+ 
         .errorBox {
           border-left: 7px solid #b91c1c;
         }
-
+ 
         .badge {
           background: rgba(111, 153, 64, 0.14);
           color: var(--green-dark);
@@ -948,7 +961,7 @@ return (
           font-weight: 900;
           white-space: nowrap;
         }
-
+ 
         .deliveryProgress {
           margin: 28px 0;
           background: var(--cream);
@@ -956,7 +969,7 @@ return (
           border-radius: 24px;
           padding: 22px;
         }
-
+ 
         .progressHeader {
           display: flex;
           justify-content: space-between;
@@ -964,18 +977,18 @@ return (
           align-items: baseline;
           margin-bottom: 22px;
         }
-
+ 
         .progressHeader h3 {
           font-size: 30px;
           margin: 0;
         }
-
+ 
         .progressHeader p {
           margin: 0;
           color: var(--green-dark);
           font-weight: 900;
         }
-
+ 
         .progressTrack {
           position: relative;
           height: 10px;
@@ -983,7 +996,7 @@ return (
           border-radius: 999px;
           margin: 30px 10px 24px;
         }
-
+ 
         .progressFill {
           position: absolute;
           inset: 0 auto 0 0;
@@ -991,7 +1004,7 @@ return (
           border-radius: 999px;
           transition: width 0.9s ease;
         }
-
+ 
         .progressPoint {
           position: absolute;
           top: 50%;
@@ -1007,13 +1020,13 @@ return (
           font-size: 14px;
           transition: all 0.35s ease;
         }
-
+ 
         .progressPoint.active {
           background: var(--green);
           border-color: var(--green);
           box-shadow: 0 0 0 7px rgba(111, 153, 64, 0.14);
         }
-
+ 
         .progressLabels {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
@@ -1023,19 +1036,19 @@ return (
           font-weight: 900;
           text-align: center;
         }
-
+ 
         .progressLabels span:first-child {
           text-align: left;
         }
-
+ 
         .progressLabels span:last-child {
           text-align: right;
         }
-
+ 
         .activeLabel {
           color: var(--green-dark);
         }
-
+ 
         .deliveredMessage {
           margin-top: 22px;
           background: rgba(155, 79, 216, 0.11);
@@ -1048,21 +1061,21 @@ return (
           gap: 10px;
           align-items: center;
         }
-
+ 
         .summaryGrid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 14px;
           margin: 26px 0;
         }
-
+ 
         .summaryGrid div {
           background: var(--cream);
           border: 1px solid rgba(111, 153, 64, 0.1);
           border-radius: 18px;
           padding: 15px;
         }
-
+ 
         .summaryGrid span {
           display: block;
           color: #7d6a5e;
@@ -1072,32 +1085,32 @@ return (
           text-transform: uppercase;
           letter-spacing: 0.08em;
         }
-
+ 
         .summaryGrid strong {
           overflow-wrap: anywhere;
         }
-
+ 
         .sectionTitle h3 {
           font-size: 32px;
           margin: 0;
         }
-
+ 
         .sectionTitle p {
           color: var(--brown);
           margin-top: 4px;
         }
-
+ 
         .timeline {
           border-left: 2px solid rgba(111, 153, 64, 0.28);
           margin-left: 8px;
           padding-top: 8px;
         }
-
+ 
         .timelineItem {
           position: relative;
           padding: 0 0 24px 26px;
         }
-
+ 
         .dot {
           position: absolute;
           left: -8px;
@@ -1108,19 +1121,19 @@ return (
           background: var(--green);
           border: 3px solid white;
         }
-
+ 
         .timelineContent {
           background: #fffaf6;
           border: 1px solid rgba(111, 153, 64, 0.12);
           border-radius: 18px;
           padding: 14px;
         }
-
+ 
         .timelineContent p {
           margin: 6px 0 0;
           color: #7d6a5e;
         }
-
+ 
         .emptyTimeline {
           display: flex;
           align-items: center;
@@ -1130,7 +1143,7 @@ return (
           padding: 18px;
           color: var(--brown);
         }
-
+ 
         footer {
           max-width: 1120px;
           margin: 50px auto 12px;
@@ -1138,14 +1151,14 @@ return (
           text-align: center;
           color: var(--brown);
         }
-
+ 
         footer img {
           width: 190px;
           max-width: 70vw;
           display: block;
           margin: 0 auto 8px;
         }
-
+ 
         .decorFlower {
           position: fixed;
           z-index: 0;
@@ -1155,14 +1168,14 @@ return (
           user-select: none;
           filter: drop-shadow(0 8px 12px rgba(155, 79, 216, 0.14));
         }
-
+ 
         .flowerOne {
           top: 138px;
           left: 5vw;
           font-size: 34px;
           transform: rotate(-18deg);
         }
-
+ 
         .flowerTwo {
           top: 220px;
           right: 8vw;
@@ -1170,21 +1183,21 @@ return (
           color: var(--lavender);
           transform: rotate(16deg);
         }
-
+ 
         .flowerThree {
           bottom: 125px;
           left: 9vw;
           font-size: 26px;
           transform: rotate(14deg);
         }
-
+ 
         .flowerFour {
           bottom: 175px;
           right: 12vw;
           font-size: 38px;
           transform: rotate(-10deg);
         }
-
+ 
         .flowerFive {
           top: 48%;
           left: 48%;
@@ -1193,7 +1206,7 @@ return (
           opacity: 0.16;
           transform: rotate(24deg);
         }
-
+ 
         .flowerSix {
           top: 72%;
           right: 34vw;
@@ -1201,7 +1214,7 @@ return (
           opacity: 0.18;
           transform: rotate(-28deg);
         }
-
+ 
         .flowerSeven {
           top: 34%;
           left: 22vw;
@@ -1210,7 +1223,7 @@ return (
           opacity: 0.18;
           transform: rotate(18deg);
         }
-
+ 
         .nav,
         .hero,
         .results,
@@ -1218,7 +1231,7 @@ return (
           position: relative;
           z-index: 1;
         }
-
+ 
         .confettiLayer {
           position: fixed;
           inset: 0;
@@ -1226,7 +1239,7 @@ return (
           pointer-events: none;
           overflow: hidden;
         }
-
+ 
         .confettiPiece {
           position: absolute;
           top: -20px;
@@ -1238,25 +1251,25 @@ return (
           animation-timing-function: ease-in;
           animation-fill-mode: forwards;
         }
-
+ 
         .confettiPiece:nth-child(3n) {
           background: var(--green);
           width: 8px;
           height: 8px;
           border-radius: 999px;
         }
-
+ 
         .confettiPiece:nth-child(4n) {
           background: #f6b7d2;
         }
-
+ 
         .confettiPiece:nth-child(5n) {
           background: var(--lavender);
           width: 12px;
           height: 12px;
           clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 56%, 79% 91%, 50% 70%, 21% 91%, 32% 56%, 2% 35%, 39% 35%);
         }
-
+ 
         @keyframes confettiFall {
           0% {
             transform: translateY(-20px) rotate(0deg);
@@ -1267,40 +1280,40 @@ return (
             opacity: 0;
           }
         }
-
+ 
         @media (max-width: 820px) {
           .page {
             padding: 18px;
           }
-
+ 
           .nav {
             align-items: flex-start;
             gap: 12px;
             flex-direction: column;
           }
-
+ 
           .navActions {
             width: 100%;
             justify-content: space-between;
           }
-
+ 
           .hero {
             grid-template-columns: 1fr;
             margin-top: 36px;
           }
-
+ 
           .summaryGrid,
           .progressLabels {
             grid-template-columns: 1fr;
             text-align: left;
           }
-
+ 
           .progressLabels span,
           .progressLabels span:first-child,
           .progressLabels span:last-child {
             text-align: left;
           }
-
+ 
           .resultTop,
           .cardHeader,
           .progressHeader {

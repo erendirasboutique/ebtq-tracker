@@ -149,8 +149,18 @@ function getStatusBadge(data, language) {
 
 function getProgressIndex(data) {
   const all = stringifyTracking(data);
+function isDelivered(data) {
+  const all = stringifyTracking(data);
 
-  if (all.includes("delivered") || all.includes("delivery complete")) return 3;
+  return (
+    all.includes("delivered") ||
+    all.includes("deliver") ||
+    all.includes("delivery complete") ||
+    all.includes('"status":"delivered"') ||
+    all.includes('"status":"DELIVERED"'.toLowerCase())
+  );
+}
+  if (all.includes("delivered") || all.includes("deliver") || all.includes("delivery complete")) return 3;
   if (all.includes("out_for_delivery") || all.includes("out for delivery") || all.includes("available for pickup")) return 2;
   if (all.includes("transit") || all.includes("in_transit") || all.includes("departed") || all.includes("arrived") || all.includes("accepted")) return 1;
   return 0;

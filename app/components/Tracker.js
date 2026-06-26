@@ -658,24 +658,14 @@ export default function Tracker({ initialTracking = "" }) {
           height: auto;
           display: block;
         }
-<style jsx>{`
-  .progressTrack {
-    ...
-  }
-
-  .progressFill {
-    ...
-  }
-
-  .packageIcon {
-    position: absolute;
-    top: -34px;
-    transform: translateX(-50%);
-    transition: left 0.8s ease;
-    font-size: 26px;
-    z-index: 10;
-  }
-`}</style>
+.packageIcon {
+  position: absolute;
+  top: -34px;
+  transform: translateX(-50%);
+  transition: left 0.8s ease;
+  font-size: 26px;
+  z-index: 10;
+}
         .navActions {
           display: flex;
           align-items: center;

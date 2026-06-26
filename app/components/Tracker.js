@@ -460,6 +460,12 @@ export default function Tracker({ initialTracking = "" }) {
 
               <div className="progressTrack">
                 <div className="progressFill" style={{ width: `${progressPercent}%` }} />
+<div
+  className="packageIcon"
+  style={{ left: `${progressPercent}%` }}
+>
+  📦
+</div>
                 {progressSteps.map((step, index) => (
                   <div
                     key={step.en}

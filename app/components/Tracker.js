@@ -369,10 +369,14 @@ export default function Tracker({ initialTracking = "" }) {
 
     setLoading(false);
   }
+const history = result?.tracking_history || [];
+const progressIndex = result ? getProgressIndex(result) : 0;
+const progressPercent = result ? Math.round((progressIndex / 3) * 100) : 0;
+const trackingForButtons = result?.tracking_number || trackingNumber;
+const carrierForButtons = result?.carrier || selectedCarrier;
+const officialCarrierUrl = carrierTrackingUrl(carrierForButtons, trackingForButtons);
 
-  const history = result?.tracking_history || [];
-  const progressIndex = result ? getProgressIndex(result) : 0;
-  const progressPercent = result ? Math.round((progressIndex / 3) * 100) : 0;
+return (
 
   return (
     <main className="page">

@@ -1,0 +1,4 @@
+Upload these two font files here with these exact names:
+
+bringbold_nineties_regular.otf
+MDNichrome-Bold.otf

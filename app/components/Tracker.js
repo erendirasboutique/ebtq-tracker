@@ -403,14 +403,6 @@ export default function Tracker({ initialTracking = "" }) {
           <span className="navPill">{t.navPill}</span>
         </div>
       </header>
-  .packageIcon {
-  position: absolute;
-  top: -34px;
-  transform: translateX(-50%);
-  transition: left 0.8s ease;
-  font-size: 26px;
-  z-index: 10;
-}
 
       <section className="hero">
         <div className="heroText">

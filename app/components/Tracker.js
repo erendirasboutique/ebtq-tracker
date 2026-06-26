@@ -472,7 +472,7 @@ export default function Tracker({ initialTracking = "" }) {
               </div>
             ) : (
               <div className="timeline">
-                {history.map((event, index) => (
+                {[...history].reverse().map((event, index) => (
                   <div className="timelineItem" key={event.object_id || index}>
                     <div className="dot" />
                     <div className="timelineContent">

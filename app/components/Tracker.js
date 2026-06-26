@@ -370,6 +370,7 @@ export default function Tracker({ initialTracking = "" }) {
     setLoading(false);
   }
 const history = result?.tracking_history || [];
+const reversedHistory = [...history].reverse();
 const progressIndex = result ? getProgressIndex(result) : 0;
 const progressPercent = result ? Math.round((progressIndex / 3) * 100) : 0;
 const trackingForButtons = result?.tracking_number || trackingNumber;

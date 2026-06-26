@@ -184,7 +184,24 @@ function formatDate(value, language) {
     minute: "2-digit"
   });
 }
+function carrierTrackingUrl(carrier, trackingNumber) {
+  if (!trackingNumber) return null;
 
+  switch ((carrier || "").toLowerCase()) {
+    case "usps":
+      return `https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=${trackingNumber}`;
+
+    case "ups":
+      return `https://www.ups.com/track?tracknum=${trackingNumber}`;
+
+    case "fedex":
+      return `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
+
+    default:
+      return null;
+  }
+  
+}
 function Confetti({ show }) {
   if (!show) return null;
 
@@ -452,6 +469,19 @@ export default function Tracker({ initialTracking = "" }) {
             </div>
 
             <div className="summaryGrid">
+              {carrierTrackingUrl(result?.carrier || selectedCarrier, trackingNumber) && (
+  <a
+    className="carrierButton"
+    href={carrierTrackingUrl(
+      result?.carrier || selectedCarrier,
+      trackingNumber
+    )}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    View on {carrierName(result?.carrier || selectedCarrier, language)} →
+  </a>
+)}
               <div>
                 <span>{t.summaryCarrier}</span>
                 <strong>{carrierName(result.carrier || selectedCarrier, language)}</strong>
@@ -519,7 +549,22 @@ export default function Tracker({ initialTracking = "" }) {
   border: 2px solid var(--green);
   box-shadow: 0 12px 28px rgba(111, 153, 64, 0.16);
 }
+.carrierButton {
+  display: inline-block;
+  margin: 24px 0;
+  background: var(--green);
+  color: white;
+  padding: 14px 22px;
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: 0.2s;
+}
 
+.carrierButton:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
 .latestEvent .timelineContent::before {
   content: "Latest update";
   display: inline-block;

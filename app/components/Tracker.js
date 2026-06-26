@@ -636,6 +636,14 @@ export default function Tracker({ initialTracking = "" }) {
   font-size: 11px;
   font-weight: 900;
 }
+.packageIcon {
+  position: absolute;
+  top: -34px;
+  transform: translateX(-50%);
+  transition: left 0.8s ease;
+  font-size: 26px;
+  z-index: 10;
+}
         .nav {
           max-width: 1120px;
           margin: 0 auto;

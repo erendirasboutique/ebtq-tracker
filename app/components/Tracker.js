@@ -13,7 +13,7 @@ const progressSteps = [
   { en: "Order shipped", es: "Pedido enviado" },
   { en: "In transit", es: "En tránsito" },
   { en: "Out for delivery", es: "En reparto" },
-  { en: "Delivered", es: "Entregado" }
+  { en: "Delivered!", es: "Entregado!" }
 ];
 
 const text = {
@@ -31,8 +31,8 @@ const text = {
     button: "Track my order",
     loading: "Checking...",
     note: "Tracking may take a little time to appear after your package has shipped.",
-    directNote: "Direct tracking links are supported, like /TRACKING-NUMBER.",
-    errorTitle: "We could not find that tracking yet.",
+    directNote: "If you have any problems please contact us at help.erendirasboutique.com",
+    errorTitle: "We could not find that tracking number, please double-check your info",
     errorSmall: "Please check the tracking number and carrier. If your order just shipped, try again later after the carrier updates their system.",
     currentStatus: "Current status",
     deliveryProgress: "Delivery progress",
@@ -48,15 +48,14 @@ const text = {
     footer: "Thank you for shopping with Erendira's Boutique.",
     notAvailable: "Not available",
     locationUnavailable: "Location not available",
-    testConfetti: "Test confetti"
   },
   es: {
     navPill: "Seguimiento de pedido",
     eyebrow: "Erendira's Boutique",
-    heroTitle: "Rastrea tu pedido fácilmente.",
+    heroTitle: "Rastrea tu pedido",
     heroText: "Ingresa tu número de rastreo para ver las actualizaciones más recientes de tu envío.",
     lookup: "Buscar envío",
-    where: "¿Dónde está mi paquete?",
+    where: "Dónde está mi paquete?",
     carrier: "Transportista",
     trackingNumber: "Número de rastreo",
     placeholder: "Ingresa tu número de rastreo",
@@ -64,13 +63,13 @@ const text = {
     button: "Rastrear mi pedido",
     loading: "Buscando...",
     note: "El rastreo puede tardar un poco en aparecer después de que tu paquete sea enviado.",
-    directNote: "También puedes compartir enlaces directos como /NÚMERO-DE-RASTREO.",
+    directNote: "Si tiene algún problema, por favor contáctenos en help.erendirasboutique.com",
     errorTitle: "No pudimos encontrar ese rastreo todavía.",
     errorSmall: "Revisa el número de rastreo y el transportista. Si tu pedido acaba de ser enviado, intenta de nuevo más tarde.",
     currentStatus: "Estado actual",
     deliveryProgress: "Progreso de entrega",
     complete: "completo",
-    deliveredMessage: "Tu paquete ha sido entregado. ¡Gracias por comprar en Erendira's Boutique!",
+    deliveredMessage: "Tu paquete ha sido entregado. Gracias por comprar en Erendira's Boutique!",
     summaryCarrier: "Transportista",
     summaryTracking: "Número de rastreo",
     eta: "Entrega estimada",
@@ -81,7 +80,6 @@ const text = {
     footer: "Gracias por comprar en Erendira's Boutique.",
     notAvailable: "No disponible",
     locationUnavailable: "Ubicación no disponible",
-    testConfetti: "Probar confeti"
   }
 };
 
@@ -301,11 +299,6 @@ export default function Tracker({ initialTracking = "" }) {
     setLoading(false);
   }
 
-  function triggerTestConfetti() {
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 5000);
-  }
-
   const history = result?.tracking_history || [];
   const progressIndex = result ? getProgressIndex(result) : 0;
   const progressPercent = result ? Math.round((progressIndex / 3) * 100) : 0;
@@ -335,10 +328,6 @@ export default function Tracker({ initialTracking = "" }) {
               <option value="es">Español</option>
             </select>
           </label>
-
-          <button type="button" className="confettiTestButton" onClick={triggerTestConfetti}>
-            {t.testConfetti}
-          </button>
 
           <span className="navPill">{t.navPill}</span>
         </div>

@@ -377,10 +377,7 @@ const carrierForButtons = result?.carrier || selectedCarrier;
 const officialCarrierUrl = carrierTrackingUrl(carrierForButtons, trackingForButtons);
 
 return (
-
-  return (
-    <main className="page">
-      <Confetti show={showConfetti} />
+  <main className="page">
 
       <div className="decorFlower flowerOne">✿</div>
       <div className="decorFlower flowerTwo">✿</div>

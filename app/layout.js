@@ -1,5 +1,6 @@
 import localFont from "next/font/local";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 const bringbold = localFont({
   src: "./fonts/bringbold_nineties_regular.otf",
@@ -24,7 +25,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${bringbold.variable} ${mdNichrome.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

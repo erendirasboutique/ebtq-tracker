@@ -15,9 +15,27 @@ const recoleta = localFont({
 
 export const metadata = {
   title: "Erendira's Boutique | Track Your Order",
-  description: "Track your Erendira's Boutique package",
+  description: "Track your Erendira's Boutique package.",
   icons: {
     icon: "/favicon.png"
+  },
+  openGraph: {
+    title: "Erendira's Boutique | Track Your Order",
+    description: "Track your Erendira's Boutique package.",
+    images: [
+      {
+        url: "/social-preview1.png",
+        width: 1200,
+        height: 630,
+        alt: "Erendira's Boutique Track Your Order"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Erendira's Boutique | Track Your Order",
+    description: "Track your Erendira's Boutique package.",
+    images: ["/social-preview1.png"]
   }
 };
 

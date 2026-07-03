@@ -435,7 +435,7 @@ return (
 
       <header className="nav">
         <a className="brand" href="/">
-          <img src="/logo.png" alt="Erendira's Boutique" />
+          <img src="/logo2.png" alt="Erendira's Boutique" />
         </a>
 
         <div className="navActions">
@@ -652,7 +652,7 @@ return (
       </section>
 
       <footer className="footer">
-        <img src="/logo.png" alt="Erendira's Boutique" />
+        <img src="/logo2.png" alt="Erendira's Boutique" />
 
         <h2>Erendira&apos;s Boutique</h2>
         <p>Elegant Fashion • Timeless Style</p>

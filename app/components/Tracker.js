@@ -83,7 +83,7 @@ const text = {
     timeline: "Historial del envío",
     timelineSub: "Actualizaciones más recientes del transportista.",
     emptyTimeline: "Todavía no hay historial de rastreo disponible.",
-    footer: "Gracias por comprar en Erendira's Boutique.",
+    footer: "Si necesita ayuda, contáctenos.",
     notAvailable: "No disponible",
     locationUnavailable: "Ubicación no disponible",
     latestUpdate: "Última actualización",
@@ -650,14 +650,6 @@ return (
           </div>
         )}
       </section>
-
-      <footer>
-        <img src="/logo.png" alt="Erendira's Boutique" />
-        <p>{t.footer}</p>
-      </footer>
-
-      <footer className="footer">
-        <img src="/logo.png" alt="Erendira's Boutique" />
 
         <h2>Erendira&apos;s Boutique</h2>
         <p>Envios cada Sabado!</p>

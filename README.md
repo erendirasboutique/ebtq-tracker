@@ -1,31 +1,27 @@
-# Erendira's Boutique Tracker
+# Erendira's Boutique Tracking Portal — Rebrand
 
-Complete clean Next.js project.
+This ZIP is a rebranded version of the tracking portal.
 
-## Upload instructions
+Updated branding:
+- Background: #f6f4f1
+- Buttons / main text: #957f67
+- Accents: #cfbda9
+- Headings: La Luxes Serif
+- Body / inputs / buttons: Recoleta
+- New logo and favicon included
 
-1. Unzip this folder.
-2. Upload all unzipped contents to your empty GitHub repo.
-3. Make sure GitHub shows:
-   - app/
-   - public/
-   - package.json
-   - next.config.js
-4. Upload the two font files into app/fonts/:
-   - bringbold_nineties_regular.otf
-   - MDNichrome-Bold.otf
-5. In Vercel, add:
-   - Key: SHIPPO_API_TOKEN
-   - Value: your Shippo live token
-6. Redeploy.
-
-## Features
-
+Tracking functionality was kept the same:
 - Shippo tracking API
-- Manual tracking form
-- Direct URL tracking: /TRACKING_NUMBER
-- Query tracking: /?tracking=TRACKING_NUMBER
-- English / Spanish dropdown
-- Delivery progress bar
-- Confetti plus test confetti button
-- Erendira's Boutique logo and favicon
+- Dynamic tracking URLs
+- English / Spanish toggle
+- Confetti on delivery
+- Timeline
+- Progress bar
+- Copy tracking number/link
+- Carrier links
+
+## Vercel Environment Variable
+
+Add your Shippo token in Vercel:
+
+SHIPPO_API_TOKEN=your_token_here

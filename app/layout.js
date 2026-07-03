@@ -1,14 +1,14 @@
 import localFont from "next/font/local";
 import "./globals.css";
 
-const bringbold = localFont({
-  src: "./fonts/bringbold_nineties_regular.otf",
+const laLuxesSerif = localFont({
+  src: "./fonts/la_luxes_serif.otf",
   variable: "--font-heading",
   display: "swap"
 });
 
-const mdNichrome = localFont({
-  src: "./fonts/MDNichrome-Bold.otf",
+const recoleta = localFont({
+  src: "./fonts/recoleta-regular.otf",
   variable: "--font-body",
   display: "swap"
 });
@@ -23,7 +23,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${bringbold.variable} ${mdNichrome.variable}`}>
+    <html lang="en" className={`${laLuxesSerif.variable} ${recoleta.variable}`}>
       <body>{children}</body>
     </html>
   );

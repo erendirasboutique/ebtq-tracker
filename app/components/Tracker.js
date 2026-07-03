@@ -105,13 +105,13 @@ function stringifyTracking(data) {
 function carrierLogo(carrier) {
   switch ((carrier || "").toLowerCase()) {
     case "usps":
-      return "/usps.svg";
+      return "/usps.png";
 
     case "ups":
-      return "/ups.svg";
+      return "/ups.png";
 
     case "fedex":
-      return "/fedex.svg";
+      return "/fedex.png";
 
     default:
       return null;

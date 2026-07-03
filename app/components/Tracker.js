@@ -37,7 +37,7 @@ const text = {
     currentStatus: "Current status",
     deliveryProgress: "Delivery progress",
     complete: "complete",
-    deliveredMessage: "Your package has been delivered! Thank you for shopping with Erendira's Boutique!",
+    deliveredMessage: "Your package has been delivered. Thank you for shopping with Erendira's Boutique!",
     summaryCarrier: "Carrier",
     summaryTracking: "Tracking number",
     eta: "Estimated delivery",
@@ -56,7 +56,7 @@ const text = {
     copiedLink: "Tracking link copied!",
   },
   es: {
-    navPill: "Seguimiento de Pedido",
+    navPill: "Seguimiento de pedido",
     eyebrow: "Erendira's Boutique",
     heroTitle: "Rastrea tu pedido",
     heroText: "Ingresa tu número de rastreo para ver las actualizaciones más recientes de tu envío.",
@@ -83,7 +83,7 @@ const text = {
     timeline: "Historial del envío",
     timelineSub: "Actualizaciones más recientes del transportista.",
     emptyTimeline: "Todavía no hay historial de rastreo disponible.",
-    footer: "Si necesita ayuda, contáctenos.",
+    footer: "Gracias por comprar en Erendira's Boutique.",
     notAvailable: "No disponible",
     locationUnavailable: "Ubicación no disponible",
     latestUpdate: "Última actualización",
@@ -651,19 +651,22 @@ return (
         )}
       </section>
 
+      <footer className="footer">
+        <img src="/logo.png" alt="Erendira's Boutique" />
+
         <h2>Erendira&apos;s Boutique</h2>
-        <p>Envios cada Sabado!</p>
+        <p>Elegant Fashion • Timeless Style</p>
 
         <div className="footerLinks">
           <a href="https://www.erendirasboutique.com" target="_blank" rel="noopener noreferrer">🏠 Home</a>
-          <a href="https://facebook.erendirasboutique.com" target="_blank" rel="noopener noreferrer">🛍 Shop</a>
+          <a href="https://ebtq.io" target="_blank" rel="noopener noreferrer">🛍 Shop</a>
           <a href="https://www.erendirasboutique.com/gallery" target="_blank" rel="noopener noreferrer">📸 Gallery</a>
           <a href="https://returns.erendirasboutique.com" target="_blank" rel="noopener noreferrer">↩️ Returns</a>
           <a href="https://www.erendirasboutique.com/contact" target="_blank" rel="noopener noreferrer">📧 Contact</a>
           <a href="https://www.erendirasboutique.com/return-policy" target="_blank" rel="noopener noreferrer">📄 Return Policy</a>
         </div>
 
-        <small>© 2026 Erendira&apos;s Boutique</small>
+        <small>© 2026 Erendira&apos;s Boutique • Made with ♡ in California</small>
       </footer>
 
       <style jsx>{`
@@ -1178,21 +1181,6 @@ return (
           border-radius: 18px;
           padding: 18px;
           color: var(--brown);
-        }
-
-        footer {
-          max-width: 1120px;
-          margin: 50px auto 12px;
-          padding: 20px 0;
-          text-align: center;
-          color: var(--brown);
-        }
-
-        footer img {
-          width: 220px;
-          max-width: 70vw;
-          display: block;
-          margin: 0 auto 8px;
         }
 
         .decorFlower {

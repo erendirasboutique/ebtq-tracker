@@ -37,7 +37,7 @@ const text = {
     currentStatus: "Current status",
     deliveryProgress: "Delivery progress",
     complete: "complete",
-    deliveredMessage: "Your package has been delivered. Thank you for shopping with Erendira's Boutique!",
+    deliveredMessage: "Your package has been delivered! Thank you for shopping with Erendira's Boutique!",
     summaryCarrier: "Carrier",
     summaryTracking: "Tracking number",
     eta: "Estimated delivery",
@@ -56,7 +56,7 @@ const text = {
     copiedLink: "Tracking link copied!",
   },
   es: {
-    navPill: "Seguimiento de pedido",
+    navPill: "Seguimiento de Pedido",
     eyebrow: "Erendira's Boutique",
     heroTitle: "Rastrea tu pedido",
     heroText: "Ingresa tu número de rastreo para ver las actualizaciones más recientes de tu envío.",
@@ -660,18 +660,18 @@ return (
         <img src="/logo.png" alt="Erendira's Boutique" />
 
         <h2>Erendira&apos;s Boutique</h2>
-        <p>Elegant Fashion • Timeless Style</p>
+        <p>Envios cada Sabado!</p>
 
         <div className="footerLinks">
           <a href="https://www.erendirasboutique.com" target="_blank" rel="noopener noreferrer">🏠 Home</a>
-          <a href="https://ebtq.io" target="_blank" rel="noopener noreferrer">🛍 Shop</a>
+          <a href="https://facebook.erendirasboutique.com" target="_blank" rel="noopener noreferrer">🛍 Shop</a>
           <a href="https://www.erendirasboutique.com/gallery" target="_blank" rel="noopener noreferrer">📸 Gallery</a>
           <a href="https://returns.erendirasboutique.com" target="_blank" rel="noopener noreferrer">↩️ Returns</a>
           <a href="https://www.erendirasboutique.com/contact" target="_blank" rel="noopener noreferrer">📧 Contact</a>
           <a href="https://www.erendirasboutique.com/return-policy" target="_blank" rel="noopener noreferrer">📄 Return Policy</a>
         </div>
 
-        <small>© 2026 Erendira&apos;s Boutique • Made with ♡ in California</small>
+        <small>© 2026 Erendira&apos;s Boutique</small>
       </footer>
 
       <style jsx>{`

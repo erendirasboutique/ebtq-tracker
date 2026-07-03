@@ -655,7 +655,7 @@ return (
         <img src="/logo2.png" alt="Erendira's Boutique" />
 
         <h2>Erendira&apos;s Boutique</h2>
-        <p>Elegant Fashion • Timeless Style</p>
+        <p>Envios cada Sabado!</p>
 
         <div className="footerLinks">
           <a href="https://www.erendirasboutique.com" target="_blank" rel="noopener noreferrer">🏠 Home</a>

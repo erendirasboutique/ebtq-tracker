@@ -13,7 +13,7 @@ const progressSteps = [
   { en: "Order shipped", es: "Pedido enviado" },
   { en: "In transit", es: "En tránsito" },
   { en: "Out for delivery", es: "En reparto" },
-  { en: "Delivered", es: "Entregado" }
+  { en: "Delivered!", es: "Entregado!" }
 ];
 
 const text = {
@@ -31,8 +31,8 @@ const text = {
     button: "Track my order",
     loading: "Checking...",
     note: "Tracking may take a little time to appear after your package has shipped.",
-    directNote: "Direct tracking links are supported, like /TRACKING-NUMBER.",
-    errorTitle: "We could not find that tracking yet.",
+    directNote: "If you have any problems please contact us at help.erendirasboutique.com",
+    errorTitle: "We could not find that tracking number, please double-check your info",
     errorSmall: "Please check the tracking number and carrier. If your order just shipped, try again later after the carrier updates their system.",
     currentStatus: "Current status",
     deliveryProgress: "Delivery progress",
@@ -48,15 +48,20 @@ const text = {
     footer: "Thank you for shopping with Erendira's Boutique.",
     notAvailable: "Not available",
     locationUnavailable: "Location not available",
-    testConfetti: "Test confetti"
+    latestUpdate: "Latest update",
+    viewOn: "View on",
+    copyNumber: "Copy tracking number",
+    copyLink: "Copy tracking link",
+    copiedNumber: "Tracking number copied!",
+    copiedLink: "Tracking link copied!",
   },
   es: {
     navPill: "Seguimiento de pedido",
     eyebrow: "Erendira's Boutique",
-    heroTitle: "Rastrea tu pedido fácilmente.",
+    heroTitle: "Rastrea tu pedido",
     heroText: "Ingresa tu número de rastreo para ver las actualizaciones más recientes de tu envío.",
     lookup: "Buscar envío",
-    where: "¿Dónde está mi paquete?",
+    where: "Dónde está mi paquete?",
     carrier: "Transportista",
     trackingNumber: "Número de rastreo",
     placeholder: "Ingresa tu número de rastreo",
@@ -64,13 +69,13 @@ const text = {
     button: "Rastrear mi pedido",
     loading: "Buscando...",
     note: "El rastreo puede tardar un poco en aparecer después de que tu paquete sea enviado.",
-    directNote: "También puedes compartir enlaces directos como /NÚMERO-DE-RASTREO.",
+    directNote: "Si tiene algún problema, por favor contáctenos en help.erendirasboutique.com",
     errorTitle: "No pudimos encontrar ese rastreo todavía.",
     errorSmall: "Revisa el número de rastreo y el transportista. Si tu pedido acaba de ser enviado, intenta de nuevo más tarde.",
     currentStatus: "Estado actual",
     deliveryProgress: "Progreso de entrega",
     complete: "completo",
-    deliveredMessage: "Tu paquete ha sido entregado. ¡Gracias por comprar en Erendira's Boutique!",
+    deliveredMessage: "Tu paquete ha sido entregado. Gracias por comprar en Erendira's Boutique!",
     summaryCarrier: "Transportista",
     summaryTracking: "Número de rastreo",
     eta: "Entrega estimada",
@@ -81,7 +86,12 @@ const text = {
     footer: "Gracias por comprar en Erendira's Boutique.",
     notAvailable: "No disponible",
     locationUnavailable: "Ubicación no disponible",
-    testConfetti: "Probar confeti"
+    latestUpdate: "Última actualización",
+    viewOn: "Ver en",
+    copyNumber: "Copiar número de rastreo",
+    copyLink: "Copiar enlace de rastreo",
+    copiedNumber: "Número de rastreo copiado!",
+    copiedLink: "Enlace de rastreo copiado!",
   }
 };
 
@@ -92,7 +102,21 @@ function stringifyTracking(data) {
     return "";
   }
 }
+function carrierLogo(carrier) {
+  switch ((carrier || "").toLowerCase()) {
+    case "usps":
+      return "/usps.svg";
 
+    case "ups":
+      return "/ups.svg";
+
+    case "fedex":
+      return "/fedex.svg";
+
+    default:
+      return null;
+  }
+}
 function guessCarrier(trackingNumber) {
   const n = String(trackingNumber || "").trim().toUpperCase();
 
@@ -102,7 +126,6 @@ function guessCarrier(trackingNumber) {
 
   return "usps";
 }
-
 function carrierName(value, language) {
   const match = carriers.find((c) => c.value === value);
   if (!match) return value?.toUpperCase() || (language === "es" ? "Transportista" : "Carrier");
@@ -149,19 +172,58 @@ function getStatusBadge(data, language) {
   return language === "es" ? "Rastreando" : "Tracking";
 }
 
-function getProgressIndex(data) {
-  const all = stringifyTracking(data);
+function getPrimaryStatus(data) {
+  return String(
+    data?.tracking_status?.status ||
+      data?.tracking_status?.status_details ||
+      data?.status ||
+      ""
+  ).toLowerCase();
+}
 
-  if (all.includes("delivered") || all.includes("delivery complete")) return 3;
-  if (all.includes("out_for_delivery") || all.includes("out for delivery") || all.includes("available for pickup")) return 2;
-  if (all.includes("transit") || all.includes("in_transit") || all.includes("departed") || all.includes("arrived") || all.includes("accepted")) return 1;
+function getProgressIndex(data) {
+  const s = getPrimaryStatus(data);
+
+  if (
+    s === "delivered" ||
+    s.includes("has been delivered") ||
+    s.includes("was delivered") ||
+    s.includes("delivered to")
+  ) {
+    return 3;
+  }
+
+  if (
+    s === "out_for_delivery" ||
+    s.includes("out for delivery") ||
+    s.includes("available for pickup")
+  ) {
+    return 2;
+  }
+
+  if (
+    s.includes("transit") ||
+    s.includes("in_transit") ||
+    s.includes("departed") ||
+    s.includes("arrived") ||
+    s.includes("accepted")
+  ) {
+    return 1;
+  }
+
   return 0;
 }
 
 function isDelivered(data) {
-  return stringifyTracking(data).includes("delivered") || getProgressIndex(data) === 3;
-}
+  const s = getPrimaryStatus(data);
 
+  return (
+    s === "delivered" ||
+    s.includes("has been delivered") ||
+    s.includes("was delivered") ||
+    s.includes("delivered to")
+  );
+}
 function formatDate(value, language) {
   if (!value) return text[language].notAvailable;
 
@@ -175,6 +237,35 @@ function formatDate(value, language) {
     hour: "numeric",
     minute: "2-digit"
   });
+}
+function carrierTrackingUrl(carrier, trackingNumber) {
+  if (!trackingNumber) return null;
+
+  switch ((carrier || "").toLowerCase()) {
+    case "usps":
+      return `https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=${encodeURIComponent(trackingNumber)}`;
+
+    case "ups":
+      return `https://www.ups.com/track?tracknum=${encodeURIComponent(trackingNumber)}`;
+
+    case "fedex":
+      return `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(trackingNumber)}`;
+
+    default:
+      return null;
+  }
+  
+}
+
+async function copyToClipboard(value) {
+  if (!value || typeof navigator === "undefined") return false;
+
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function Confetti({ show }) {
@@ -205,6 +296,7 @@ export default function Tracker({ initialTracking = "" }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState("");
   const hasAutoTracked = useRef(false);
 
   const t = text[language];
@@ -301,17 +393,36 @@ export default function Tracker({ initialTracking = "" }) {
     setLoading(false);
   }
 
-  function triggerTestConfetti() {
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 5000);
+  async function handleCopyTrackingNumber() {
+    const copied = await copyToClipboard(trackingForButtons);
+
+    if (copied) {
+      setCopiedMessage(t.copiedNumber);
+      setTimeout(() => setCopiedMessage(""), 2500);
+    }
   }
 
-  const history = result?.tracking_history || [];
-  const progressIndex = result ? getProgressIndex(result) : 0;
-  const progressPercent = result ? Math.round((progressIndex / 3) * 100) : 0;
+  async function handleCopyTrackingLink() {
+    const link = `${window.location.origin}/${encodeURIComponent(trackingForButtons)}`;
+    const copied = await copyToClipboard(link);
 
-  return (
-    <main className="page">
+    if (copied) {
+      setCopiedMessage(t.copiedLink);
+      setTimeout(() => setCopiedMessage(""), 2500);
+    }
+  }
+
+const history = result?.tracking_history || [];
+const reversedHistory = [...history].reverse();
+const progressIndex = result ? getProgressIndex(result) : 0;
+const progressPercent = result ? Math.round((progressIndex / 3) * 100) : 0;
+const trackingForButtons = result?.tracking_number || trackingNumber;
+const carrierForButtons = result?.carrier || selectedCarrier;
+const officialCarrierUrl = carrierTrackingUrl(carrierForButtons, trackingForButtons);
+const logoUrl = carrierLogo(carrierForButtons);
+
+return (
+  <main className="page">
       <Confetti show={showConfetti} />
 
       <div className="decorFlower flowerOne">✿</div>
@@ -335,10 +446,6 @@ export default function Tracker({ initialTracking = "" }) {
               <option value="es">Español</option>
             </select>
           </label>
-
-          <button type="button" className="confettiTestButton" onClick={triggerTestConfetti}>
-            {t.testConfetti}
-          </button>
 
           <span className="navPill">{t.navPill}</span>
         </div>
@@ -417,6 +524,14 @@ export default function Tracker({ initialTracking = "" }) {
               <span className="badge">{getStatusBadge(result, language)}</span>
             </div>
 
+            <div className="etaBanner">
+              <span>📦</span>
+              <div>
+                <strong>{t.eta}</strong>
+                <p>{formatDate(result.eta, language)}</p>
+              </div>
+            </div>
+
             <div className="deliveryProgress">
               <div className="progressHeader">
                 <h3>{t.deliveryProgress}</h3>
@@ -425,6 +540,12 @@ export default function Tracker({ initialTracking = "" }) {
 
               <div className="progressTrack">
                 <div className="progressFill" style={{ width: `${progressPercent}%` }} />
+<div
+  className="packageIcon"
+  style={{ left: `${progressPercent}%` }}
+>
+  📦
+</div>
                 {progressSteps.map((step, index) => (
                   <div
                     key={step.en}
@@ -455,11 +576,14 @@ export default function Tracker({ initialTracking = "" }) {
             <div className="summaryGrid">
               <div>
                 <span>{t.summaryCarrier}</span>
-                <strong>{carrierName(result.carrier || selectedCarrier, language)}</strong>
+                <div className="carrierDisplay">
+                  {logoUrl && <img src={logoUrl} alt={carrierName(carrierForButtons, language)} />}
+                  <strong>{carrierName(carrierForButtons, language)}</strong>
+                </div>
               </div>
               <div>
                 <span>{t.summaryTracking}</span>
-                <strong>{result.tracking_number || trackingNumber}</strong>
+                <strong>{trackingForButtons}</strong>
               </div>
               <div>
                 <span>{t.eta}</span>
@@ -470,6 +594,29 @@ export default function Tracker({ initialTracking = "" }) {
                 <strong>{formatDate(result.object_updated, language)}</strong>
               </div>
             </div>
+
+            <div className="trackingActions">
+              {officialCarrierUrl && (
+                <a
+                  className="carrierButton"
+                  href={officialCarrierUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.viewOn} {carrierName(carrierForButtons, language)} →
+                </a>
+              )}
+
+              <button type="button" className="secondaryButton" onClick={handleCopyTrackingNumber}>
+                📋 {t.copyNumber}
+              </button>
+
+              <button type="button" className="secondaryButton" onClick={handleCopyTrackingLink}>
+                🔗 {t.copyLink}
+              </button>
+            </div>
+
+            {copiedMessage && <p className="copiedMessage">{copiedMessage}</p>}
 
             <div className="sectionTitle">
               <h3>{t.timeline}</h3>
@@ -483,10 +630,11 @@ export default function Tracker({ initialTracking = "" }) {
               </div>
             ) : (
               <div className="timeline">
-                {history.map((event, index) => (
-                  <div className="timelineItem" key={event.object_id || index}>
+                {reversedHistory.map((event, index) => (
+                  <div className={`timelineItem ${index === 0 ? "latestEvent" : ""}`} key={event.object_id || index}>
                     <div className="dot" />
                     <div className="timelineContent">
+                      {index === 0 && <span className="latestBadge">{t.latestUpdate}</span>}
                       <strong>{translateStatus(event.status_details || event.status || "Shipment update", language)}</strong>
                       <p>{formatDate(event.status_date || event.object_created, language)}</p>
                       <p>
@@ -508,6 +656,24 @@ export default function Tracker({ initialTracking = "" }) {
         <p>{t.footer}</p>
       </footer>
 
+      <footer className="footer">
+        <img src="/logo.png" alt="Erendira's Boutique" />
+
+        <h2>Erendira&apos;s Boutique</h2>
+        <p>Elegant Fashion • Timeless Style</p>
+
+        <div className="footerLinks">
+          <a href="https://www.erendirasboutique.com" target="_blank" rel="noopener noreferrer">🏠 Home</a>
+          <a href="https://ebtq.io" target="_blank" rel="noopener noreferrer">🛍 Shop</a>
+          <a href="https://www.erendirasboutique.com/gallery" target="_blank" rel="noopener noreferrer">📸 Gallery</a>
+          <a href="https://returns.erendirasboutique.com" target="_blank" rel="noopener noreferrer">↩️ Returns</a>
+          <a href="https://www.erendirasboutique.com/contact" target="_blank" rel="noopener noreferrer">📧 Contact</a>
+          <a href="https://www.erendirasboutique.com/return-policy" target="_blank" rel="noopener noreferrer">📄 Return Policy</a>
+        </div>
+
+        <small>© 2026 Erendira&apos;s Boutique • Made with ♡ in California</small>
+      </footer>
+
       <style jsx>{`
         .page {
           min-height: 100vh;
@@ -515,6 +681,82 @@ export default function Tracker({ initialTracking = "" }) {
           font-family: var(--font-body), Arial, sans-serif;
           position: relative;
           overflow-x: hidden;
+        }
+.latestEvent .timelineContent {
+          border: 2px solid var(--green);
+          box-shadow: 0 12px 28px rgba(149, 127, 103, 0.16);
+        }
+
+        .latestBadge {
+          display: inline-block;
+          margin-bottom: 8px;
+          background: rgba(149, 127, 103, 0.14);
+          color: var(--green-dark);
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 900;
+        }
+
+        .packageIcon {
+          position: absolute;
+          top: -34px;
+          transform: translateX(-50%);
+          transition: left 0.8s ease;
+          font-size: 26px;
+          z-index: 10;
+        }
+
+        .carrierDisplay {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .carrierDisplay img {
+          height: 30px;
+          width: auto;
+          object-fit: contain;
+        }
+
+        .trackingActions {
+          display: flex;
+          gap: 12px;
+          margin: 20px 0 26px;
+          flex-wrap: wrap;
+        }
+
+        .carrierButton,
+        .secondaryButton {
+          width: auto;
+          display: inline-block;
+          margin: 0;
+          background: var(--green);
+          color: white;
+          padding: 13px 18px;
+          border-radius: 16px;
+          text-decoration: none;
+          font-weight: 900;
+          transition: 0.2s;
+          border: 2px solid var(--green);
+          box-shadow: 0 10px 22px rgba(207, 189, 169, 0.58);
+        }
+
+        .secondaryButton {
+          background: white;
+          color: var(--green-dark);
+        }
+
+        .carrierButton:hover,
+        .secondaryButton:hover {
+          opacity: 0.94;
+          transform: translateY(-2px);
+        }
+
+        .copiedMessage {
+          margin: -10px 0 24px;
+          color: var(--green-dark);
+          font-weight: 900;
         }
 
         .nav {
@@ -531,7 +773,6 @@ export default function Tracker({ initialTracking = "" }) {
           height: auto;
           display: block;
         }
-
         .navActions {
           display: flex;
           align-items: center;
@@ -563,15 +804,7 @@ export default function Tracker({ initialTracking = "" }) {
           cursor: pointer;
         }
 
-        .confettiTestButton {
-          width: auto;
-          margin: 0;
-          padding: 10px 14px;
-          border-radius: 999px;
-          font-size: 13px;
-          box-shadow: 0 8px 18px rgba(149, 127, 103, 0.16);
-        }
-
+        
         .navPill {
           border: 1px solid var(--border);
           background: rgba(255, 255, 255, 0.55);
@@ -740,7 +973,7 @@ export default function Tracker({ initialTracking = "" }) {
         }
 
         .errorBox {
-          border-left: 7px solid #b91c1c;
+          border-left: 7px solid #9b5f5f;
         }
 
         .badge {
@@ -750,6 +983,27 @@ export default function Tracker({ initialTracking = "" }) {
           border-radius: 999px;
           font-weight: 900;
           white-space: nowrap;
+        }
+
+        .etaBanner {
+          display: flex;
+          gap: 14px;
+          align-items: center;
+          margin-top: 24px;
+          background: rgba(207, 189, 169, 0.30);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 18px;
+          color: var(--green-dark);
+        }
+
+        .etaBanner span {
+          font-size: 28px;
+        }
+
+        .etaBanner p {
+          margin: 4px 0 0;
+          color: var(--brown);
         }
 
         .deliveryProgress {
@@ -782,9 +1036,9 @@ export default function Tracker({ initialTracking = "" }) {
         .progressTrack {
           position: relative;
           height: 10px;
-          background: rgba(207, 189, 169, 0.55);
+          background: rgba(207, 189, 169, 0.58);
           border-radius: 999px;
-          margin: 26px 10px 20px;
+          margin: 30px 10px 24px;
         }
 
         .progressFill {
@@ -1069,6 +1323,65 @@ export default function Tracker({ initialTracking = "" }) {
             transform: translateY(110vh) rotate(720deg);
             opacity: 0;
           }
+        }
+
+        .footer {
+          max-width: 1120px;
+          margin: 70px auto 20px;
+          padding: 38px 20px;
+          text-align: center;
+          border-top: 2px solid rgba(207, 189, 169, 0.58);
+          position: relative;
+          z-index: 1;
+        }
+
+        .footer img {
+          width: 220px;
+          max-width: 70vw;
+          display: block;
+          margin: 0 auto 12px;
+        }
+
+        .footer h2 {
+          font-family: var(--font-heading), Georgia, serif;
+          font-size: 34px;
+          margin: 8px 0;
+          color: var(--text);
+        }
+
+        .footer p {
+          margin: 0 0 22px;
+          color: var(--brown);
+          font-size: 15px;
+        }
+
+        .footerLinks {
+          display: flex;
+          justify-content: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-bottom: 22px;
+        }
+
+        .footerLinks a {
+          background: rgba(255, 255, 255, 0.75);
+          border: 1px solid var(--border);
+          color: var(--green-dark);
+          padding: 11px 15px;
+          border-radius: 999px;
+          text-decoration: none;
+          font-weight: 900;
+          transition: 0.2s ease;
+        }
+
+        .footerLinks a:hover {
+          background: var(--green);
+          color: white;
+          transform: translateY(-2px);
+        }
+
+        .footer small {
+          color: var(--brown);
         }
 
         @media (max-width: 820px) {

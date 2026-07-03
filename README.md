@@ -1,27 +1,26 @@
-# Erendira's Boutique Tracking Portal — Rebrand
+# Erendira's Boutique Tracking Portal — Rebrand V2
 
-This ZIP is a rebranded version of the tracking portal.
-
-Updated branding:
+This version uses the new rebrand:
 - Background: #f6f4f1
-- Buttons / main text: #957f67
+- Main text/buttons: #957f67
 - Accents: #cfbda9
 - Headings: La Luxes Serif
-- Body / inputs / buttons: Recoleta
+- Body: Recoleta
 - New logo and favicon included
 
-Tracking functionality was kept the same:
-- Shippo tracking API
-- Dynamic tracking URLs
+This version keeps the tracking features:
+- Dynamic tracking links
 - English / Spanish toggle
-- Confetti on delivery
-- Timeline
-- Progress bar
-- Copy tracking number/link
-- Carrier links
+- Shippo tracking
+- Progress bar + package icon
+- Estimated delivery date
+- View on USPS/UPS/FedEx button
+- Copy tracking number
+- Copy tracking link
+- Reversed tracking timeline
+- Footer links
+- No test confetti button
 
 ## Vercel Environment Variable
-
-Add your Shippo token in Vercel:
 
 SHIPPO_API_TOKEN=your_token_here

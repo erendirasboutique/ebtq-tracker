@@ -1,13 +1,13 @@
 :root {
-  --cream: #f6f4f1;
-  --green: #957f67;
-  --green-dark: #6f5f4d;
-  --brown: #957f67;
-  --text: #957f67;
-  --soft-card: #fbfaf8;
-  --border: rgba(207, 189, 169, 0.58);
-  --purple: #cfbda9;
-  --lavender: #e8ded3;
+  --cream: #fdfcf7;
+  --green: #eda033;
+  --green-dark: #c47a12;
+  --brown: #da5e16;
+  --text: #da5e16;
+  --soft-card: #fffdf8;
+  --border: rgba(237, 160, 51, 0.35);
+  --purple: #eda033;
+  --lavender: #f6d3a8;
 }
 
 * {
@@ -22,8 +22,8 @@ body {
 
 body {
   background:
-    radial-gradient(circle at 20% 10%, rgba(207, 189, 169, 0.28), transparent 28%),
-    radial-gradient(circle at 85% 20%, rgba(149, 127, 103, 0.14), transparent 24%),
+    radial-gradient(circle at 20% 10%, rgba(237, 160, 51, 0.12), transparent 28%),
+    radial-gradient(circle at 85% 20%, rgba(218, 94, 22, 0.08), transparent 24%),
     var(--cream);
   color: var(--text);
   font-family: var(--font-body), Georgia, serif;

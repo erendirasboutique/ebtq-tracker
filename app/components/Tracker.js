@@ -790,16 +790,54 @@ export default function Tracker({ initialTracking = "", initialLang = "es" }) {
   const currentLabel = view === "result" ? shortPlace(ts.location) : "";
   const endLabel = view === "result" && state === "delivered" ? t.yourDoor : t.you;
 
+  const actions = (variant) => (
+    <>
+      {state === "delivered" ? (
+        <button type="button" className={`${variant}-main`} onClick={() => setBurst((b) => b + 1)}>
+          {t.celebrate}
+        </button>
+      ) : carrierUrl ? (
+        <a className={`${variant}-main`} href={carrierUrl} target="_blank" rel="noopener noreferrer">
+          {t.viewOn(carrierInfo.name)} →
+        </a>
+      ) : (
+        <button type="button" className={`${variant}-main`} onClick={handleCopy}>
+          {t.copy}
+        </button>
+      )}
+      <button type="button" onClick={handleShare}>
+        {t.share}
+      </button>
+      <a href={LINKS.help} target="_blank" rel="noopener noreferrer">
+        {t.help}
+      </a>
+    </>
+  );
+
   return (
-    <div className={`eb-page ${view === "result" ? "eb-page--with-bar" : ""}`}>
+    <div className={`eb-page eb-view-${view}`}>
       <Confetti burst={burst} />
 
       <div className="eb-app">
-        <div className="eb-top">
-          <header className="eb-header">
-            <a href="/" className="eb-logo" onClick={(e) => { if (view !== "search") { e.preventDefault(); resetSearch(); } }}>
-              <img src="/logo.png" alt="Erendira's Boutique" width="1554" height="616" />
-            </a>
+        <header className="eb-header">
+          <a
+            href="/"
+            className="eb-logo"
+            onClick={(e) => {
+              if (view !== "search") {
+                e.preventDefault();
+                resetSearch();
+              }
+            }}
+          >
+            <img src="/logo.png" alt="Erendira's Boutique" width="1554" height="616" />
+          </a>
+          <div className="eb-header-right">
+            <nav className="eb-header-nav" aria-label="Erendira's Boutique">
+              <a href={LINKS.shop} target="_blank" rel="noopener noreferrer">{t.footer.shop}</a>
+              <a href={LINKS.returns} target="_blank" rel="noopener noreferrer">{t.footer.returns}</a>
+              <a href={LINKS.contact} target="_blank" rel="noopener noreferrer">{t.footer.contact}</a>
+            </nav>
             <div className="eb-lang" role="group" aria-label="Idioma / Language">
               <button type="button" aria-pressed={lang === "es"} onClick={() => chooseLang("es")} lang="es">
                 ES
@@ -808,59 +846,146 @@ export default function Tracker({ initialTracking = "", initialLang = "es" }) {
                 EN
               </button>
             </div>
-          </header>
+          </div>
+        </header>
 
-          <RouteMap
-            progress={mapProgress}
-            currentLabel={currentLabel}
-            endLabel={endLabel}
-            t={t}
-            showMarker={view === "result"}
-            delivered={view === "result" && state === "delivered"}
-          />
-        </div>
-
-        <main className="eb-sheet">
-          <span className="eb-handle" aria-hidden="true" />
-
-          {view === "search" && (
-            <SearchForm
-              t={t}
-              input={input}
-              setInput={setInput}
-              carrier={carrier}
-              setCarrier={setCarrier}
-              onSubmit={() => trackPackage()}
-              loading={loading}
-              title={t.searchTitle}
-              sub={t.searchSub}
-            />
-          )}
-
-          {view === "loading" && (
-            <div className="eb-loading" role="status" aria-live="polite">
-              <p className="eb-kicker">{t.loading}</p>
-              <div className="eb-skel eb-skel--title" />
-              <div className="eb-skel eb-skel--line" />
-              <div className="eb-skel-row">
-                <div className="eb-skel eb-skel--tile" />
-                <div className="eb-skel eb-skel--tile" />
-                <div className="eb-skel eb-skel--tile" />
-                <div className="eb-skel eb-skel--tile" />
-              </div>
-              <div className="eb-skel eb-skel--card" />
+        <div className="eb-layout">
+          {/* Left on desktop: map + the headline. On phones: map, then the top of the sheet. */}
+          <section className="eb-hero">
+            <div className="eb-map-frame">
+              <RouteMap
+                progress={mapProgress}
+                currentLabel={currentLabel}
+                endLabel={endLabel}
+                t={t}
+                showMarker={view === "result"}
+                delivered={view === "result" && state === "delivered"}
+              />
             </div>
-          )}
 
-          {view === "notfound" && (
-            <>
-              <div className="eb-notfound" role="alert">
-                <span className="eb-notfound-icon">
-                  <Icon name="search" size={22} />
-                </span>
-                <h1 className="eb-h1 eb-h1--sm">{t.notFoundTitle}</h1>
-                <p className="eb-muted">{t.notFoundBody}</p>
+            <div className="eb-summary">
+              <span className="eb-handle" aria-hidden="true" />
+
+              {view === "search" && (
+                <div>
+                  <h1 className="eb-h1">
+                    {t.searchTitle.map((line, i) => (
+                      <span key={i} className="eb-h1-line">
+                        {line}
+                      </span>
+                    ))}
+                  </h1>
+                  <p className="eb-muted eb-subline">{t.searchSub}</p>
+                </div>
+              )}
+
+              {view === "loading" && (
+                <div className="eb-loading" role="status" aria-live="polite">
+                  <p className="eb-kicker">{t.loading}</p>
+                  <div className="eb-skel eb-skel--title" />
+                  <div className="eb-skel eb-skel--line" />
+                  <div className="eb-skel-row">
+                    <div className="eb-skel eb-skel--tile" />
+                    <div className="eb-skel eb-skel--tile" />
+                    <div className="eb-skel eb-skel--tile" />
+                    <div className="eb-skel eb-skel--tile" />
+                  </div>
+                </div>
+              )}
+
+              {view === "notfound" && (
+                <div className="eb-notfound" role="alert">
+                  <span className="eb-notfound-icon">
+                    <Icon name="search" size={22} />
+                  </span>
+                  <h1 className="eb-h1 eb-h1--sm">{t.notFoundTitle}</h1>
+                  <p className="eb-muted">{t.notFoundBody}</p>
+                </div>
+              )}
+
+              {view === "result" && (
+                <>
+                  <div className="eb-status" aria-live="polite">
+                    <p className="eb-kicker">
+                      <span className={`eb-dot ${state === "attention" ? "eb-dot--alert" : ""}`} />
+                      {t.pill[state]}
+                      {lastScanDate && state !== "delivered" ? ` · ${t.updated(relativeTime(lastScanDate, t))}` : ""}
+                    </p>
+                    <h1 className={`eb-h1 ${state === "delivered" ? "eb-pop" : ""}`}>
+                      {headline.map((line, i) => (
+                        <span key={i} className="eb-h1-line">
+                          {line}
+                        </span>
+                      ))}
+                    </h1>
+                    {subline && <p className="eb-muted eb-subline">{subline}</p>}
+                  </div>
+
+                  <ol className="eb-steps" aria-label={t.history}>
+                    {t.steps.map((label, i) => {
+                      const done = i < stepIndex || (i === 3 && state === "delivered");
+                      const current = i === stepIndex && state !== "delivered";
+                      let small = "";
+                      if (done)
+                        small =
+                          i === 3
+                            ? fmtTime(stepDates[3], t)
+                            : fmtShortDay(i === 0 ? shippedDate : stepDates[i] || shippedDate, t);
+                      else if (current) small = t.now;
+                      else if (i === 3 && eta) small = fmtShortDay(eta, t);
+                      else small = t.next;
+                      return (
+                        <li
+                          key={label}
+                          className={`eb-step ${done ? "is-done" : ""} ${current ? "is-current" : ""}`}
+                          aria-current={current ? "step" : undefined}
+                        >
+                          <span className="eb-step-small">{small || "—"}</span>
+                          <span className="eb-step-label">{i === 0 && state === "pre" ? t.pill.pre : label}</span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+
+                  {(state === "attention" || state === "returned") && (
+                    <a className="eb-alert" href={LINKS.help} target="_blank" rel="noopener noreferrer">
+                      <Icon name="alert" />
+                      <span>
+                        <strong>{eventText(ts, lang)}</strong>
+                        <span>help.erendirasboutique.com</span>
+                      </span>
+                    </a>
+                  )}
+
+                  <div className="eb-actions">{actions("eb-actions")}</div>
+                </>
+              )}
+            </div>
+          </section>
+
+          {/* Right on desktop: details. On phones: the rest of the sheet. */}
+          <main className="eb-sheet">
+            {view === "search" && (
+              <SearchForm
+                t={t}
+                input={input}
+                setInput={setInput}
+                carrier={carrier}
+                setCarrier={setCarrier}
+                onSubmit={() => trackPackage()}
+                loading={loading}
+              />
+            )}
+
+            {view === "loading" && (
+              <div className="eb-loading" aria-hidden="true">
+                <div className="eb-skel eb-skel--card" />
+                <div className="eb-skel eb-skel--line" />
+                <div className="eb-skel eb-skel--card eb-skel--short" />
               </div>
+            )}
+
+            {view === "notfound" && (
               <SearchForm
                 t={t}
                 input={input}
@@ -872,204 +997,132 @@ export default function Tracker({ initialTracking = "", initialLang = "es" }) {
                 buttonLabel={t.tryAgain}
                 compact
               />
-            </>
-          )}
+            )}
 
-          {view === "result" && (
-            <>
-              <section className="eb-status" aria-live="polite">
-                <p className="eb-kicker">
-                  <span className={`eb-dot ${state === "attention" ? "eb-dot--alert" : ""}`} />
-                  {t.pill[state]}
-                  {lastScanDate && state !== "delivered" ? ` · ${t.updated(relativeTime(lastScanDate, t))}` : ""}
-                </p>
-                <h1 className={`eb-h1 ${state === "delivered" ? "eb-pop" : ""}`}>
-                  {headline.map((line, i) => (
-                    <span key={i} className="eb-h1-line">
-                      {line}
-                    </span>
-                  ))}
-                </h1>
-                {subline && <p className="eb-muted eb-subline">{subline}</p>}
-              </section>
-
-              <ol className="eb-steps" aria-label={t.history}>
-                {t.steps.map((label, i) => {
-                  const done = i < stepIndex || (i === 3 && state === "delivered");
-                  const current = i === stepIndex && state !== "delivered";
-                  let small = "";
-                  if (done) small = i === 3 ? fmtTime(stepDates[3], t) : fmtShortDay(i === 0 ? shippedDate : stepDates[i] || shippedDate, t);
-                  else if (current) small = t.now;
-                  else if (i === 3 && eta) small = fmtShortDay(eta, t);
-                  else small = t.next;
-                  return (
-                    <li
-                      key={label}
-                      className={`eb-step ${done ? "is-done" : ""} ${current ? "is-current" : ""} ${
-                        current && state === "attention" ? "is-alert" : ""
-                      }`}
-                      aria-current={current ? "step" : undefined}
-                    >
-                      <span className="eb-step-small">{small || "—"}</span>
-                      <span className="eb-step-label">{i === 0 && state === "pre" ? t.pill.pre : label}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-
-              {state === "delivered" && (
-                <section className="eb-thanks">
-                  <h2>{t.thanksTitle}</h2>
-                  <p>{t.thanksBody}</p>
-                  <div className="eb-thanks-actions">
-                    <a className="eb-btn eb-btn--dark" href={LINKS.shop} target="_blank" rel="noopener noreferrer">
-                      {t.shopNew}
-                    </a>
-                    <a className="eb-btn eb-btn--outline" href={LINKS.returns} target="_blank" rel="noopener noreferrer">
-                      {t.startReturn}
-                    </a>
-                  </div>
-                </section>
-              )}
-
-              {(state === "attention" || state === "returned") && (
-                <a className="eb-alert" href={LINKS.help} target="_blank" rel="noopener noreferrer">
-                  <Icon name="alert" />
-                  <span>
-                    <strong>{eventText(ts, lang)}</strong>
-                    <span>help.erendirasboutique.com</span>
-                  </span>
-                </a>
-              )}
-
-              <section className="eb-card">
-                <div className="eb-card-head">
-                  <div className="eb-carrier-logo">
-                    {carrierInfo.logo ? <img src={carrierInfo.logo} alt="" /> : <span>{carrierInfo.name}</span>}
-                  </div>
-                  <div className="eb-carrier-text">
-                    <strong>{carrierInfo.name}</strong>
-                    {service && <span>{service}</span>}
-                  </div>
-                  {carrierUrl && (
-                    <a className="eb-carrier-link" href={carrierUrl} target="_blank" rel="noopener noreferrer">
-                      {t.viewOn(carrierInfo.name)}
-                      <Icon name="arrow" size={16} />
-                    </a>
-                  )}
-                </div>
-                <div className="eb-card-tracking">
-                  <span className="eb-label">{t.trackingLabel}</span>
-                  <div className="eb-tracking-row">
-                    <span className="eb-tracking-number">{prettyTracking(trackingNumber)}</span>
-                    <button type="button" className="eb-icon-btn" onClick={handleCopy} aria-label={t.copy} title={t.copy}>
-                      <Icon name="copy" size={18} />
-                    </button>
-                  </div>
-                </div>
-                <dl className="eb-facts">
-                  <div>
-                    <dt>{t.shipped}</dt>
-                    <dd>{fmtDay(shippedDate, t) || t.notAvailable}</dd>
-                  </div>
-                  <div>
-                    <dt>{state === "delivered" ? t.pill.delivered : t.eta}</dt>
-                    <dd>
-                      {state === "delivered"
-                        ? fmtDay(ts.status_date, t) || t.notAvailable
-                        : eta
-                          ? fmtDayTime(eta, t)
-                          : t.notAvailable}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{t.lastScan}</dt>
-                    <dd>{lastScanDate ? `${fmtShortDay(lastScanDate, t)}, ${fmtTime(lastScanDate, t)}` : t.notAvailable}</dd>
-                  </div>
-                  <div>
-                    <dt>{t.updates}</dt>
-                    <dd>{t.scans(history.length)}</dd>
-                  </div>
-                </dl>
-              </section>
-
-              <section className="eb-history">
-                <h2>{t.history}</h2>
-                {newestFirst.length === 0 ? (
-                  <p className="eb-muted">{t.noHistory(carrierInfo.name)}</p>
-                ) : (
-                  <ol>
-                    {newestFirst.map((ev, i) => {
-                      const where = placeOf(ev.location);
-                      const when = ev.status_date || ev.object_created;
-                      return (
-                        <li key={ev.object_id || `${when}-${i}`} className={i === 0 ? "is-latest" : ""}>
-                          <span className="eb-history-dot" aria-hidden="true" />
-                          <div className="eb-history-text">
-                            <strong>{eventText(ev, lang)}</strong>
-                            {where && <span>{where}</span>}
-                          </div>
-                          <time className="eb-history-time" dateTime={when || undefined}>
-                            {fmtShortDay(when, t)}
-                            <br />
-                            {fmtTime(when, t)}
-                          </time>
-                        </li>
-                      );
-                    })}
-                  </ol>
+            {view === "result" && (
+              <>
+                {state === "delivered" && (
+                  <section className="eb-thanks">
+                    <h2>{t.thanksTitle}</h2>
+                    <p>{t.thanksBody}</p>
+                    <div className="eb-thanks-actions">
+                      <a className="eb-btn eb-btn--dark" href={LINKS.shop} target="_blank" rel="noopener noreferrer">
+                        {t.shopNew}
+                      </a>
+                      <a className="eb-btn eb-btn--outline" href={LINKS.returns} target="_blank" rel="noopener noreferrer">
+                        {t.startReturn}
+                      </a>
+                    </div>
+                  </section>
                 )}
-              </section>
 
-              <button type="button" className="eb-link-btn" onClick={resetSearch}>
-                <Icon name="back" size={18} />
-                {t.trackAnother}
-              </button>
-            </>
-          )}
+                <section className="eb-card">
+                  <div className="eb-card-head">
+                    <div className="eb-carrier-logo">
+                      {carrierInfo.logo ? <img src={carrierInfo.logo} alt="" /> : <span>{carrierInfo.name}</span>}
+                    </div>
+                    <div className="eb-carrier-text">
+                      <strong>{carrierInfo.name}</strong>
+                      {service && <span>{service}</span>}
+                    </div>
+                    {carrierUrl && (
+                      <a className="eb-carrier-link" href={carrierUrl} target="_blank" rel="noopener noreferrer">
+                        {t.viewOn(carrierInfo.name)}
+                        <Icon name="arrow" size={16} />
+                      </a>
+                    )}
+                  </div>
+                  <div className="eb-card-tracking">
+                    <span className="eb-label">{t.trackingLabel}</span>
+                    <div className="eb-tracking-row">
+                      <span className="eb-tracking-number">{prettyTracking(trackingNumber)}</span>
+                      <button type="button" className="eb-icon-btn" onClick={handleCopy} aria-label={t.copy} title={t.copy}>
+                        <Icon name="copy" size={18} />
+                      </button>
+                    </div>
+                  </div>
+                  <dl className="eb-facts">
+                    <div>
+                      <dt>{t.shipped}</dt>
+                      <dd>{fmtDay(shippedDate, t) || t.notAvailable}</dd>
+                    </div>
+                    <div>
+                      <dt>{state === "delivered" ? t.pill.delivered : t.eta}</dt>
+                      <dd>
+                        {state === "delivered"
+                          ? fmtDay(ts.status_date, t) || t.notAvailable
+                          : eta
+                            ? fmtDayTime(eta, t)
+                            : t.notAvailable}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{t.lastScan}</dt>
+                      <dd>{lastScanDate ? `${fmtShortDay(lastScanDate, t)}, ${fmtTime(lastScanDate, t)}` : t.notAvailable}</dd>
+                    </div>
+                    <div>
+                      <dt>{t.updates}</dt>
+                      <dd>{t.scans(history.length)}</dd>
+                    </div>
+                  </dl>
+                </section>
 
-          <footer className="eb-footer">
-            <p>
-              <strong>{t.shipsSaturday}</strong> · {t.questions}{" "}
-              <a href={LINKS.help} target="_blank" rel="noopener noreferrer">
-                help.erendirasboutique.com
-              </a>
-            </p>
-            <nav>
-              <a href={LINKS.home} target="_blank" rel="noopener noreferrer">{t.footer.home}</a>
-              <a href={LINKS.shop} target="_blank" rel="noopener noreferrer">{t.footer.shop}</a>
-              <a href={LINKS.gallery} target="_blank" rel="noopener noreferrer">{t.footer.gallery}</a>
-              <a href={LINKS.returns} target="_blank" rel="noopener noreferrer">{t.footer.returns}</a>
-              <a href={LINKS.contact} target="_blank" rel="noopener noreferrer">{t.footer.contact}</a>
-            </nav>
-            <small>© {new Date().getFullYear()} Erendira&apos;s Boutique</small>
-          </footer>
-        </main>
+                <section className="eb-history">
+                  <h2>{t.history}</h2>
+                  {newestFirst.length === 0 ? (
+                    <p className="eb-muted">{t.noHistory(carrierInfo.name)}</p>
+                  ) : (
+                    <ol>
+                      {newestFirst.map((ev, i) => {
+                        const where = placeOf(ev.location);
+                        const when = ev.status_date || ev.object_created;
+                        return (
+                          <li key={ev.object_id || `${when}-${i}`} className={i === 0 ? "is-latest" : ""}>
+                            <span className="eb-history-dot" aria-hidden="true" />
+                            <div className="eb-history-text">
+                              <strong>{eventText(ev, lang)}</strong>
+                              {where && <span>{where}</span>}
+                            </div>
+                            <time className="eb-history-time" dateTime={when || undefined}>
+                              {fmtShortDay(when, t)}
+                              <br />
+                              {fmtTime(when, t)}
+                            </time>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  )}
+                </section>
+
+                <button type="button" className="eb-link-btn" onClick={resetSearch}>
+                  <Icon name="back" size={18} />
+                  {t.trackAnother}
+                </button>
+              </>
+            )}
+          </main>
+        </div>
+
+        <footer className="eb-footer">
+          <p>
+            <strong>{t.shipsSaturday}</strong> · {t.questions}{" "}
+            <a href={LINKS.help} target="_blank" rel="noopener noreferrer">
+              help.erendirasboutique.com
+            </a>
+          </p>
+          <nav>
+            <a href={LINKS.home} target="_blank" rel="noopener noreferrer">{t.footer.home}</a>
+            <a href={LINKS.shop} target="_blank" rel="noopener noreferrer">{t.footer.shop}</a>
+            <a href={LINKS.gallery} target="_blank" rel="noopener noreferrer">{t.footer.gallery}</a>
+            <a href={LINKS.returns} target="_blank" rel="noopener noreferrer">{t.footer.returns}</a>
+            <a href={LINKS.contact} target="_blank" rel="noopener noreferrer">{t.footer.contact}</a>
+          </nav>
+          <small>© {new Date().getFullYear()} Erendira&apos;s Boutique</small>
+        </footer>
       </div>
 
-      {view === "result" && (
-        <div className="eb-bar">
-          {state === "delivered" ? (
-            <button type="button" className="eb-bar-main" onClick={() => setBurst((b) => b + 1)}>
-              {t.celebrate}
-            </button>
-          ) : carrierUrl ? (
-            <a className="eb-bar-main" href={carrierUrl} target="_blank" rel="noopener noreferrer">
-              {t.viewOn(carrierInfo.name)} →
-            </a>
-          ) : (
-            <button type="button" className="eb-bar-main" onClick={handleCopy}>
-              {t.copy}
-            </button>
-          )}
-          <button type="button" onClick={handleShare}>
-            {t.share}
-          </button>
-          <a href={LINKS.help} target="_blank" rel="noopener noreferrer">
-            {t.help}
-          </a>
-        </div>
-      )}
+      {view === "result" && <div className="eb-bar">{actions("eb-bar")}</div>}
 
       <div className={`eb-toast ${toast ? "is-on" : ""}`} role="status" aria-live="polite">
         {toast}
@@ -1077,6 +1130,7 @@ export default function Tracker({ initialTracking = "", initialLang = "es" }) {
     </div>
   );
 }
+
 
 function SearchForm({ t, input, setInput, carrier, setCarrier, onSubmit, loading, title, sub, buttonLabel, compact }) {
   const options = [

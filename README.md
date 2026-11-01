@@ -5,6 +5,10 @@ Customer tracking page for track.erendirasboutique.com. Built with Next.js, host
 ## What's new in V3
 
 - **Phone-first "route map" design** — drawn route from the boutique to the customer, a slide-up panel with the status, and a button bar pinned to the bottom (Ver en USPS · Compartir · Ayuda).
+- **Designed for every screen size.**
+  - Phones get the map with a slide-up panel and a button bar pinned to the bottom.
+  - Tablets get one column of cards.
+  - Desktops get a full header (logo, Tienda / Devoluciones / Contacto, ES / EN) and two columns: the status, steps and buttons with the route map on the left, and the carrier details and full history on the right.
 - **Spanish by default.** English is one tap away (ES / EN). A customer's choice is remembered on their phone. Add `?lang=en` to a link to open it in English.
 - **Brand colors** — cream `#f5f3ef`, ink `#4a3f33`, taupe `#806a52`, sand `#bda891`. No seasonal orange.
 - **Regular logo** (`/public/logo.png`) instead of the fall logo.

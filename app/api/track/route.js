@@ -11,7 +11,7 @@ function guessCarrier(trackingNumber) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const trackingNumber = String(body.trackingNumber || "").trim();
+    const trackingNumber = String(body.trackingNumber || "").replace(/[\s-]+/g, "").trim();
     const carrier = body.carrier || "auto";
 
     if (!trackingNumber) {

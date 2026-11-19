@@ -1,4 +1,4 @@
 Brand fonts used by the tracking portal:
 
-TAN-Nightingale-Regular.otf  - headings
-Edinburgh-Regular.otf        - body text and everything else
+TheSilverEditorial-Regular.otf  - headings
+EvolveEarly-Medium.otf        - body text and everything else

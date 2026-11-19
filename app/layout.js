@@ -1,17 +1,17 @@
 import localFont from "next/font/local";
 import "./globals.css";
 
-// Headings: TAN Nightingale. Body and everything else: Edinburgh.
+// Headings: The Silver Editorial. Body and everything else: Evolve Early.
 // The heading face covers every weight so browsers never fake a bold version of it.
 const headingFont = localFont({
-  src: "./fonts/TAN-Nightingale-Regular.otf",
+  src: "./fonts/TheSilverEditorial-Regular.otf",
   variable: "--font-heading",
   weight: "100 900",
   display: "swap"
 });
 
 const bodyFont = localFont({
-  src: "./fonts/Edinburgh-Regular.otf",
+  src: "./fonts/EvolveEarly-Medium.otf",
   variable: "--font-body",
   weight: "400",
   display: "swap"

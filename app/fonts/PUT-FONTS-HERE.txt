@@ -1,4 +1,4 @@
-Upload these two font files here with these exact names:
+Brand fonts used by the tracking portal:
 
-bringbold_nineties_regular.otf
-MDNichrome-Bold.otf
+TAN-Nightingale-Regular.otf  - headings
+Edinburgh-Regular.otf        - body text and everything else

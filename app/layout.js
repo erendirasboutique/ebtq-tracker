@@ -1,10 +1,19 @@
 import localFont from "next/font/local";
 import "./globals.css";
 
-const bricolage = localFont({
-  src: "./fonts/BricolageGrotesque.woff",
-  variable: "--font-eb",
-  weight: "200 800",
+// Headings: TAN Nightingale. Body and everything else: Edinburgh.
+// The heading face covers every weight so browsers never fake a bold version of it.
+const headingFont = localFont({
+  src: "./fonts/TAN-Nightingale-Regular.otf",
+  variable: "--font-heading",
+  weight: "100 900",
+  display: "swap"
+});
+
+const bodyFont = localFont({
+  src: "./fonts/Edinburgh-Regular.otf",
+  variable: "--font-body",
+  weight: "400",
   display: "swap"
 });
 
@@ -43,7 +52,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={bricolage.variable}>
+    <html lang="es" className={`${headingFont.variable} ${bodyFont.variable}`}>
       <body>{children}</body>
     </html>
   );

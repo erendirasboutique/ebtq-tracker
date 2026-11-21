@@ -1,17 +1,17 @@
 import localFont from "next/font/local";
 import "./globals.css";
 
-// Headings: The Silver Editorial. Body and everything else: Evolve Early.
+// Headings: Charman Serif. Body and everything else: Ltt Recoleta.
 // The heading face covers every weight so browsers never fake a bold version of it.
 const headingFont = localFont({
-  src: "./fonts/TheSilverEditorial-Regular.otf",
+  src: "./fonts/CharmanSerif-Regular.otf",
   variable: "--font-heading",
   weight: "100 900",
   display: "swap"
 });
 
 const bodyFont = localFont({
-  src: "./fonts/EvolveEarly-Medium.otf",
+  src: "./fonts/LttRecoleta-CondensedMedium.otf",
   variable: "--font-body",
   weight: "400",
   display: "swap"

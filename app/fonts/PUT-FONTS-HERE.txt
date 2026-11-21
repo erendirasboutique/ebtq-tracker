@@ -1,4 +1,4 @@
 Brand fonts used by the tracking portal:
 
-TheSilverEditorial-Regular.otf  - headings
-EvolveEarly-Medium.otf        - body text and everything else
+CharmanSerif-Regular.otf  - headings
+LttRecoleta-CondensedMedium.otf  - body text and everything else

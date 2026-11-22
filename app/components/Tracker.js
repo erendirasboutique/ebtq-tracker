@@ -6,6 +6,10 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 /* Settings                                                            */
 /* ------------------------------------------------------------------ */
 
+// The shared brand logo (served by the Customer Portal; change it there).
+const BRAND_LOGO =
+  (process.env.NEXT_PUBLIC_BRAND_URL || "https://my.erendirasboutique.com/brand").replace(/\/+$/, "") + "/logo.png";
+
 const LINKS = {
   home: "https://www.erendirasboutique.com",
   shop: "https://facebook.erendirasboutique.com",
@@ -456,7 +460,7 @@ function Icon({ name, size = 20 }) {
   );
 }
 
-const CONFETTI_COLORS = ["#4A3F33", "#806A52", "#BDA891", "#E3D8C9", "#FFFFFF", "#C9A66B"];
+const CONFETTI_COLORS = ["#4A3F33", "#957F67", "#CFBDA9", "#E3D8C9", "#FFFFFF", "#C9A66B"];
 
 function Confetti({ burst }) {
   const pieces = useMemo(() => {
@@ -830,7 +834,7 @@ export default function Tracker({ initialTracking = "", initialLang = "es" }) {
               }
             }}
           >
-            <img src="/logo.png" alt="Erendira's Boutique" width="1554" height="616" />
+            <img src={BRAND_LOGO} alt="Erendira's Boutique" width="900" height="420" />
           </a>
           <div className="eb-header-right">
             <nav className="eb-header-nav" aria-label="Erendira's Boutique">

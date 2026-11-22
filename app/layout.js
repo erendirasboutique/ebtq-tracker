@@ -1,21 +1,9 @@
-import localFont from "next/font/local";
 import "./globals.css";
 
-// Headings: Charman Serif. Body and everything else: Ltt Recoleta.
-// The heading face covers every weight so browsers never fake a bold version of it.
-const headingFont = localFont({
-  src: "./fonts/CharmanSerif-Regular.otf",
-  variable: "--font-heading",
-  weight: "100 900",
-  display: "swap"
-});
-
-const bodyFont = localFont({
-  src: "./fonts/LttRecoleta-CondensedMedium.otf",
-  variable: "--font-body",
-  weight: "400",
-  display: "swap"
-});
+// Logo, colors and fonts (Charman Serif headings, Ltt Recoleta body) come from
+// the shared brand files the Customer Portal serves. Change them there.
+const BRAND_CSS =
+  (process.env.NEXT_PUBLIC_BRAND_URL || "https://my.erendirasboutique.com/brand").replace(/\/+$/, "") + "/brand.css";
 
 export const metadata = {
   title: "Erendira's Boutique | Rastrea tu pedido",
@@ -52,7 +40,10 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={`${headingFont.variable} ${bodyFont.variable}`}>
+    <html lang="es">
+      <head>
+        <link rel="stylesheet" href={BRAND_CSS} />
+      </head>
       <body>{children}</body>
     </html>
   );

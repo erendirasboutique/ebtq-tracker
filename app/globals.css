@@ -1,14 +1,18 @@
 /* Erendira's Boutique — tracking portal (Blend 1 design) */
 
 :root {
-  --eb-cream: #f5f3ef;
+  /* Palette and fonts come from the shared brand.css (see app/layout.js);
+     the values after the commas are fallbacks. */
+  --eb-cream: var(--brand-cream, #f5f3ef);
   --eb-paper: #fffdf9;
   --eb-ink: #4a3f33;
-  --eb-taupe: #806a52;
-  --eb-sand: #bda891;
+  --eb-taupe: var(--brand-taupe, #957f67);
+  --eb-sand: var(--brand-sand, #cfbda9);
   --eb-sand-light: #e3d8c9;
   --eb-tint: #ede6db;
   --eb-gold: #c9a66b;
+  --font-heading: var(--brand-font-heading, Georgia, serif);
+  --font-body: var(--brand-font-body, Georgia, serif);
   --eb-font: var(--font-body), Georgia, serif;
   --eb-font-heading: var(--font-heading), Georgia, serif;
   --eb-bar-h: 72px;
